@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Boosting Tracker · Jomboy Media</title>
+<link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+<div class="wrap">
+
+  <header class="site-header">
+    <div class="brand-mark">
+      <span class="field-num">JMB</span>
+      <div>
+        <h1>Boosting Tracker</h1>
+        <div class="sub">2026 season · paid social boost log</div>
+      </div>
+    </div>
+    <nav class="view-nav">
+      <button class="active" data-view="2026">2026 Boosts</button>
+      <button disabled title="Coming soon">By Brand</button>
+      <button disabled title="Coming soon">By Podcast</button>
+    </nav>
+  </header>
+
+  <section class="kpi-strip" id="kpiStrip"></section>
+
+  <section class="filter-panel">
+    <div class="filter-grid">
+      <div class="filter-field">
+        <label for="dateFrom">Start date from</label>
+        <input type="date" id="dateFrom" />
+      </div>
+      <div class="filter-field">
+        <label for="dateTo">Start date to</label>
+        <input type="date" id="dateTo" />
+      </div>
+      <div class="filter-field">
+        <label for="monthSelect">Month <span class="hint">(⌘/Ctrl-click for multiple)</span></label>
+        <select id="monthSelect" multiple size="4">
+          <option value="1">Jan</option>
+          <option value="2">Feb</option>
+          <option value="3">Mar</option>
+          <option value="4">Apr</option>
+          <option value="5">May</option>
+          <option value="6">Jun</option>
+          <option value="7">Jul</option>
+        </select>
+      </div>
+      <div class="filter-field">
+        <label for="brandSelect">Brand <span class="hint">(⌘/Ctrl-click for multiple)</span></label>
+        <select id="brandSelect" multiple size="4"></select>
+      </div>
+      <div class="filter-field">
+        <label>Platform</label>
+        <div class="chip-group">
+          <div class="chip" data-platform="FB">FB</div>
+          <div class="chip" data-platform="IG">IG</div>
+          <div class="chip" data-platform="TW">TW</div>
+          <div class="chip" data-platform="TT">TT</div>
+        </div>
+      </div>
+      <div class="filter-field">
+        <label>Meta tags</label>
+        <div class="chip-group">
+          <div class="chip" data-flag="fanatics">Fanatics</div>
+          <div class="chip" data-flag="segment">Segment</div>
+          <div class="chip" data-flag="curationIntegration">Curation/Integration</div>
+          <div class="chip" data-flag="whg">WHG</div>
+          <div class="chip" data-flag="standard">Standard</div>
+        </div>
+      </div>
+    </div>
+    <div class="filter-bottom-row">
+      <span class="result-count" id="resultCount"></span>
+      <button class="reset-btn" id="resetBtn">Reset filters</button>
+    </div>
+  </section>
+
+  <section class="table-panel">
+    <div class="table-scroll">
+      <table class="boosts">
+        <thead>
+          <tr>
+            <th data-key="id">ID</th>
+            <th data-key="platform">Platform</th>
+            <th data-key="brand">Brand / Content</th>
+            <th data-key="start">Dates</th>
+            <th class="num-col" data-key="totalBudget">Budget</th>
+            <th class="num-col" data-key="totalSpent">Spent</th>
+            <th class="num-col" data-key="deliveredViews">Views</th>
+            <th class="num-col" data-key="cpm">CPM</th>
+            <th>Tags</th>
+          </tr>
+        </thead>
+        <tbody id="boostsBody"></tbody>
+      </table>
+      <div class="empty-state" id="emptyState" style="display:none;">No boosts match these filters</div>
+    </div>
+  </section>
+
+  <div class="footer-note">Boosting Tracker · Jomboy Media · Data sourced from the 2026 tab</div>
+
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
