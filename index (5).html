@@ -1,0 +1,2272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Boosting Tracker · Jomboy Media</title>
+<style>
+/* ==========================================================================
+   Boosting Tracker — Jomboy Media
+   Visual language matches the podcast-audience-insights dashboard:
+   flat dark theme, system fonts, rounded panels, no decoration for its own sake.
+   ========================================================================== */
+
+:root {
+  --bg: #0f1220;
+  --panel: #1a1f35;
+  --panel2: #222842;
+  --accent: #6c8cff;
+  --accent2: #34d399;
+  --text: #e8ecf8;
+  --muted: #9aa3c0;
+  --border: #2c3354;
+  --hi: #ff8a5c;
+
+  /* platform identity, kept inside the same palette family */
+  --fb: var(--accent);
+  --ig: var(--hi);
+  --tw: var(--muted);
+  --tt: var(--accent2);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+}
+
+a { color: var(--accent); }
+
+header {
+  padding: 28px 32px;
+  background: linear-gradient(120deg, #1a1f35, #2a2150);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+header h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.4px; }
+header p { color: var(--muted); margin-top: 6px; font-size: 14px; }
+
+.view-nav { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.view-nav a,
+.view-nav button {
+  font-size: 13px;
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 8px 14px;
+  border-radius: 9px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  font-family: inherit;
+}
+
+.view-nav a.active,
+.view-nav button.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #0f1220;
+  font-weight: 700;
+}
+
+.view-nav button[disabled] { opacity: 0.4; cursor: default; }
+
+.wrap { max-width: 1300px; margin: 0 auto; padding: 24px 32px 64px; }
+
+/* ---------- Data / upload panel ---------- */
+
+.data-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px 18px;
+  margin-bottom: 24px;
+}
+
+.data-panel .data-status {
+  font-size: 13px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.data-panel .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent2);
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.data-panel .data-status strong { color: var(--text); }
+
+.data-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+.year-input {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+.year-input input {
+  width: 64px;
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 9px;
+  padding: 6px 8px;
+  font-size: 12.5px;
+}
+
+.upload-btn {
+  font-size: 13px;
+  font-weight: 700;
+  background: var(--accent2);
+  border: 1px solid var(--accent2);
+  color: #05261b;
+  padding: 8px 16px;
+  border-radius: 9px;
+  cursor: pointer;
+}
+
+.upload-btn:hover { filter: brightness(1.06); }
+
+.clear-data-btn {
+  font-size: 12.5px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 8px 14px;
+  border-radius: 9px;
+  cursor: pointer;
+}
+
+.clear-data-btn:hover { border-color: var(--hi); color: var(--hi); }
+
+.upload-error {
+  width: 100%;
+  font-size: 12.5px;
+  color: var(--hi);
+}
+
+/* ---------- KPI strip (.stats) ---------- */
+
+.kpi-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.kpi-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px 18px;
+}
+
+.kpi-plat {
+  font-size: 12px;
+  color: var(--platform-color, var(--muted));
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.kpi-plat .count { color: var(--muted); font-weight: 400; text-transform: none; letter-spacing: 0; }
+
+.kpi-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 12px;
+  color: var(--muted);
+  padding: 3px 0;
+}
+
+.kpi-row strong {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--accent2);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Filter panel (.controls) ---------- */
+
+.filter-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px;
+  margin-bottom: 24px;
+}
+
+.filter-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 150px;
+}
+
+.filter-field label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--muted);
+}
+
+.filter-field label .hint {
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--muted);
+  opacity: 0.75;
+  font-size: 10.5px;
+}
+
+.filter-field input[type="date"],
+.filter-field input[type="number"],
+.filter-field select {
+  background: var(--panel2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 10px 12px;
+  font-size: 14px;
+  outline: none;
+  width: 100%;
+  font-family: inherit;
+}
+
+.filter-field input:focus,
+.filter-field select:focus { border-color: var(--accent); }
+
+.filter-field select[multiple] { padding: 4px; }
+.filter-field select[multiple] option { padding: 5px 8px; border-radius: 6px; }
+.filter-field select[multiple] option:checked { background: var(--accent); color: #0f1220; }
+
+.range-inputs { display: flex; align-items: center; gap: 8px; }
+.range-inputs .dash { color: var(--muted); font-size: 13px; }
+
+/* Date range popover */
+
+.daterange-field { position: relative; }
+
+.daterange-trigger {
+  background: var(--panel2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-family: inherit;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}
+
+.daterange-trigger:hover { border-color: var(--muted); }
+.daterange-trigger.has-value { color: var(--accent2); font-weight: 600; }
+
+.daterange-popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 20;
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  min-width: 220px;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.daterange-popover.open { display: flex; }
+
+.daterange-popover label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--muted);
+}
+
+.daterange-popover input[type="date"] {
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 13px;
+  width: 100%;
+}
+
+.daterange-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.daterange-actions button {
+  flex: 1;
+  font-size: 12px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.clear-range-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+.clear-range-btn:hover { border-color: var(--hi); color: var(--hi); }
+
+.apply-range-btn {
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  color: #0f1220;
+  font-weight: 700;
+}
+.apply-range-btn:hover { filter: brightness(1.08); }
+
+.chip-group { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.chip {
+  font-size: 12px;
+  padding: 6px 11px;
+  border-radius: 20px;
+  background: var(--panel2);
+  color: var(--muted);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.chip:hover { color: var(--text); border-color: var(--muted); }
+
+.chip.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #0f1220;
+  font-weight: 700;
+}
+
+.chip[data-platform="FB"].active { background: var(--fb); border-color: var(--fb); color: #061127; }
+.chip[data-platform="IG"].active { background: var(--ig); border-color: var(--ig); color: #2a1103; }
+.chip[data-platform="TW"].active { background: var(--tw); border-color: var(--tw); color: #12162a; }
+.chip[data-platform="TT"].active { background: var(--tt); border-color: var(--tt); color: #05231a; }
+
+/* Meta-tag tri-state toggles */
+
+.flags-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px 20px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.flags-note {
+  grid-column: 1 / -1;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: -4px;
+}
+
+.flags-note strong { color: var(--accent2); }
+.flags-note em { color: var(--text); font-style: normal; font-weight: 600; }
+
+.flag-toggle label {
+  display: block;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.tri-toggle {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  overflow: hidden;
+}
+
+.tri-toggle button {
+  flex: 1;
+  background: var(--panel2);
+  border: none;
+  border-right: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 11.5px;
+  font-family: inherit;
+  padding: 7px 4px;
+  cursor: pointer;
+}
+
+.tri-toggle button:last-child { border-right: none; }
+.tri-toggle button:hover { color: var(--text); }
+
+.tri-toggle button.active[data-val="any"] { background: var(--accent); color: #0f1220; font-weight: 700; }
+.tri-toggle button.active[data-val="yes"] { background: var(--accent2); color: #05261b; font-weight: 700; }
+.tri-toggle button.active[data-val="no"] { background: var(--hi); color: #2a1103; font-weight: 700; }
+
+.filter-bottom-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.result-count { font-size: 12.5px; color: var(--muted); }
+.result-count strong { color: var(--accent2); font-weight: 700; }
+
+.reset-btn {
+  font-size: 12px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 7px 14px;
+  border-radius: 9px;
+  cursor: pointer;
+}
+
+.reset-btn:hover { border-color: var(--hi); color: var(--hi); }
+
+/* ---------- Table ---------- */
+
+.table-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.table-scroll { overflow-x: auto; }
+
+table.boosts { width: 100%; border-collapse: collapse; min-width: 1180px; }
+
+table.boosts thead th {
+  position: sticky;
+  top: 0;
+  background: var(--panel2);
+  text-align: left;
+  font-size: 12px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+}
+
+table.boosts thead th:hover { color: var(--text); }
+table.boosts thead th .arrow { color: var(--accent2); margin-left: 4px; font-size: 10px; }
+
+table.boosts thead th.num-col,
+table.boosts tbody td.num-col {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+table.boosts tbody tr { border-bottom: 1px solid var(--border); }
+table.boosts tbody tr:last-child td { border-bottom: none; }
+table.boosts tbody tr:hover { background: #20264180; }
+
+table.boosts tbody td { padding: 11px 14px; font-size: 14px; }
+
+td.id-col { color: var(--muted); }
+
+.platform-pill {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 20px;
+}
+
+.platform-pill.FB { background: rgba(108,140,255,0.15); color: var(--fb); }
+.platform-pill.IG { background: rgba(255,138,92,0.15); color: var(--ig); }
+.platform-pill.TW { background: rgba(154,163,192,0.18); color: var(--tw); }
+.platform-pill.TT { background: rgba(52,211,153,0.15); color: var(--tt); }
+
+.brand-cell strong { color: var(--text); font-weight: 700; }
+.brand-cell .content-line { display: block; font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+
+.date-range { font-size: 12.5px; color: var(--muted); white-space: nowrap; }
+
+.flags-cell { display: flex; gap: 4px; flex-wrap: wrap; }
+
+.flag-dot {
+  font-size: 10px;
+  font-weight: 700;
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--panel2);
+  color: var(--accent2);
+  border: 1px solid var(--border);
+}
+
+.cpm-flag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.cpm-good { background: rgba(52,211,153,0.15); color: var(--accent2); }
+.cpm-bad { background: rgba(255,138,92,0.15); color: var(--hi); }
+.cpm-neutral { color: var(--muted); }
+
+.empty-state { padding: 40px; text-align: center; color: var(--muted); }
+
+.footer-note {
+  color: var(--muted);
+  font-size: 12px;
+  text-align: center;
+  padding: 30px;
+  border-top: 1px solid var(--border);
+  margin-top: 8px;
+}
+
+/* ---------- Summary tables (Spend by Brand / Spend by Month) ---------- */
+
+.section-title {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 8px 0 14px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+}
+
+.summary-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 28px;
+}
+
+table.summary { width: 100%; border-collapse: collapse; }
+
+table.summary thead th {
+  background: var(--panel2);
+  text-align: left;
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+table.summary thead th.num-col { text-align: right; }
+
+table.summary tbody td { padding: 11px 14px; font-size: 14px; border-bottom: 1px solid var(--border); }
+table.summary tbody td.num-col { text-align: right; font-variant-numeric: tabular-nums; }
+
+table.summary tr.parent-row {
+  cursor: pointer;
+  background: var(--panel);
+}
+table.summary tr.parent-row:hover { background: var(--panel2); }
+
+table.summary tr.parent-row td:first-child {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.chevron {
+  display: inline-block;
+  color: var(--accent2);
+  font-size: 10px;
+  transition: transform 0.15s ease;
+  width: 10px;
+}
+tr.expanded .chevron { transform: rotate(90deg); }
+
+table.summary tr.sub-row {
+  display: none;
+  background: #171c30;
+}
+table.summary tr.sub-row.show { display: table-row; }
+
+table.summary tr.sub-row td:first-child { padding-left: 34px; color: var(--muted); font-size: 13px; }
+table.summary tr.sub-row td { color: var(--muted); font-size: 13px; }
+
+table.summary tr:last-child td { border-bottom: none; }
+
+.margin-pill {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  background: rgba(52,211,153,0.15);
+  color: var(--accent2);
+}
+
+/* ---------- Report meta strip (Date Range / Active Boosts / Brands / WHG) ---------- */
+
+.report-meta-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.stat-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px 18px;
+}
+
+.stat-card .stat-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent2);
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-card .stat-label {
+  font-size: 12px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 6px;
+}
+
+@media (max-width: 640px) {
+  .wrap { padding: 20px 16px 60px; }
+  header { padding: 20px; }
+  header h1 { font-size: 22px; }
+}
+
+
+
+/* ---------- View toggle (merged single-page tabs) ---------- */
+
+.view-panel { display: none; }
+.view-panel.active { display: block; }
+
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <h1>Boosting Tracker</h1>
+      <p>Paid social boost log, brand spend &amp; active report — Jomboy Media</p>
+    </div>
+    <nav class="view-nav">
+      <button class="active" data-view="log">2026 Boosts</button>
+      <button data-view="brand">By Brand</button>
+      <button data-view="report">Report</button>
+      <button data-view="admin">Admin</button>
+    </nav>
+  </header>
+
+  <div id="view-log" class="view-panel active">
+<section class="data-panel">
+    <div class="data-status">
+      <span class="dot"></span>
+      <span id="dataStatusText">Using default embedded dataset</span>
+    </div>
+    <div class="data-actions">
+      <span class="year-input">
+        Year <input type="number" id="dataYear" value="2026" min="2000" max="2100" />
+      </span>
+      <label class="upload-btn" for="csvUpload">Upload CSV</label>
+      <input type="file" id="csvUpload" accept=".csv" style="display:none" />
+      <button class="clear-data-btn" id="clearDataBtn">Reset to default</button>
+    </div>
+    <div class="upload-error" id="uploadError" style="display:none;"></div>
+  </section>
+
+  <section class="kpi-strip" id="kpiStrip"></section>
+
+  <section class="filter-panel">
+    <div class="filter-grid">
+      <div class="filter-field daterange-field">
+        <label>Start date range</label>
+        <button type="button" class="daterange-trigger" id="startRangeTrigger">All dates</button>
+        <div class="daterange-popover" id="startRangePopover">
+          <label for="startFrom">From</label>
+          <input type="date" id="startFrom" />
+          <label for="startTo">To</label>
+          <input type="date" id="startTo" />
+          <div class="daterange-actions">
+            <button type="button" class="clear-range-btn" data-target="start">Clear</button>
+            <button type="button" class="apply-range-btn" data-target="start">Apply</button>
+          </div>
+        </div>
+      </div>
+      <div class="filter-field daterange-field">
+        <label>End date range</label>
+        <button type="button" class="daterange-trigger" id="endRangeTrigger">All dates</button>
+        <div class="daterange-popover" id="endRangePopover">
+          <label for="endFrom">From</label>
+          <input type="date" id="endFrom" />
+          <label for="endTo">To</label>
+          <input type="date" id="endTo" />
+          <div class="daterange-actions">
+            <button type="button" class="clear-range-btn" data-target="end">Clear</button>
+            <button type="button" class="apply-range-btn" data-target="end">Apply</button>
+          </div>
+        </div>
+      </div>
+      <div class="filter-field">
+        <label>Budget</label>
+        <div class="range-inputs">
+          <input type="number" id="budgetMin" placeholder="Min" min="0" step="1" />
+          <span class="dash">–</span>
+          <input type="number" id="budgetMax" placeholder="Max" min="0" step="1" />
+        </div>
+      </div>
+      <div class="filter-field">
+        <label>Spend</label>
+        <div class="range-inputs">
+          <input type="number" id="spendMin" placeholder="Min" min="0" step="1" />
+          <span class="dash">–</span>
+          <input type="number" id="spendMax" placeholder="Max" min="0" step="1" />
+        </div>
+      </div>
+      <div class="filter-field">
+        <label for="monthSelect">Month</label>
+        <select id="monthSelect">
+          <option value="">All months</option>
+          <option value="1">Jan</option>
+          <option value="2">Feb</option>
+          <option value="3">Mar</option>
+          <option value="4">Apr</option>
+          <option value="5">May</option>
+          <option value="6">Jun</option>
+          <option value="7">Jul</option>
+          <option value="8">Aug</option>
+          <option value="9">Sep</option>
+          <option value="10">Oct</option>
+          <option value="11">Nov</option>
+          <option value="12">Dec</option>
+        </select>
+      </div>
+      <div class="filter-field">
+        <label for="brandSelect">Brand</label>
+        <select id="brandSelect">
+          <option value="">All brands</option>
+        </select>
+      </div>
+      <div class="filter-field">
+        <label>Platform</label>
+        <div class="chip-group">
+          <div class="chip" data-platform="FB">FB</div>
+          <div class="chip" data-platform="IG">IG</div>
+          <div class="chip" data-platform="TW">TW</div>
+          <div class="chip" data-platform="TT">TT</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flags-grid">
+      <div class="flags-note">Select <strong>Yes</strong> on more than one tag to match boosts with <em>any</em> of them (not just ones with all).</div>
+      <div class="flag-toggle">
+        <label>Fanatics?</label>
+        <div class="tri-toggle" data-flag="fanatics">
+          <button data-val="any" class="active">Any</button>
+          <button data-val="yes">Yes</button>
+          <button data-val="no">No</button>
+        </div>
+      </div>
+      <div class="flag-toggle">
+        <label>Segment?</label>
+        <div class="tri-toggle" data-flag="segment">
+          <button data-val="any" class="active">Any</button>
+          <button data-val="yes">Yes</button>
+          <button data-val="no">No</button>
+        </div>
+      </div>
+      <div class="flag-toggle">
+        <label>Curation/Integration?</label>
+        <div class="tri-toggle" data-flag="curationIntegration">
+          <button data-val="any" class="active">Any</button>
+          <button data-val="yes">Yes</button>
+          <button data-val="no">No</button>
+        </div>
+      </div>
+      <div class="flag-toggle">
+        <label>WHG?</label>
+        <div class="tri-toggle" data-flag="whg">
+          <button data-val="any" class="active">Any</button>
+          <button data-val="yes">Yes</button>
+          <button data-val="no">No</button>
+        </div>
+      </div>
+      <div class="flag-toggle">
+        <label>Standard?</label>
+        <div class="tri-toggle" data-flag="standard">
+          <button data-val="any" class="active">Any</button>
+          <button data-val="yes">Yes</button>
+          <button data-val="no">No</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="filter-bottom-row">
+      <span class="result-count" id="resultCount"></span>
+      <button class="reset-btn" id="resetBtn">Reset filters</button>
+    </div>
+  </section>
+
+  <section class="table-panel">
+    <div class="table-scroll">
+      <table class="boosts">
+        <thead>
+          <tr>
+            <th data-key="id">ID</th>
+            <th data-key="platform">Platform</th>
+            <th data-key="brand">Brand / Content</th>
+            <th data-key="start">Dates</th>
+            <th class="num-col" data-key="totalBudget">Budget</th>
+            <th class="num-col" data-key="totalSpent">Spent</th>
+            <th class="num-col" data-key="deliveredViews">Views</th>
+            <th class="num-col" data-key="cpm">CPM</th>
+            <th>Tags</th>
+          </tr>
+        </thead>
+        <tbody id="boostsBody"></tbody>
+      </table>
+      <div class="empty-state" id="emptyState" style="display:none;">No boosts match these filters</div>
+    </div>
+  </section>
+  </div>
+
+  <div id="view-brand" class="view-panel">
+  <section class="kpi-strip" id="kpiStripBrand"></section>
+
+  <div class="section-title">Spend by brand</div>
+  <section class="summary-panel">
+    <div class="table-scroll">
+      <table class="summary">
+        <thead>
+          <tr>
+            <th>Brand</th>
+            <th class="num-col">Boosts</th>
+            <th class="num-col">Spend</th>
+            <th class="num-col">Impressions</th>
+            <th class="num-col">CPM</th>
+            <th class="num-col">Budget</th>
+            <th class="num-col">Margin</th>
+          </tr>
+        </thead>
+        <tbody id="brandBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="section-title">Spend by month</div>
+  <section class="summary-panel">
+    <div class="table-scroll">
+      <table class="summary">
+        <thead>
+          <tr>
+            <th>Month</th>
+            <th class="num-col">Boosts</th>
+            <th class="num-col">Spend</th>
+            <th class="num-col">Impressions</th>
+            <th class="num-col">CPM</th>
+          </tr>
+        </thead>
+        <tbody id="monthBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  </div>
+
+  <div id="view-report" class="view-panel">
+  <section class="filter-panel" style="margin-bottom: 24px;">
+    <div class="filter-grid">
+      <div class="filter-field">
+        <label for="reportStart">Report window start</label>
+        <input type="date" id="reportStart" />
+      </div>
+      <div class="filter-field">
+        <label for="reportEnd">Report window end</label>
+        <input type="date" id="reportEnd" />
+      </div>
+    </div>
+  </section>
+
+  <section class="report-meta-strip" id="reportMetaStrip"></section>
+
+  <div class="section-title">Spend by platform (in window)</div>
+  <section class="kpi-strip" id="kpiStripReport"></section>
+
+  <div class="section-title">Brands with active boosts</div>
+  <section class="summary-panel">
+    <div class="table-scroll">
+      <table class="summary">
+        <thead>
+          <tr>
+            <th>Brand</th>
+            <th class="num-col">Active Boosts</th>
+            <th class="num-col">Active Spend</th>
+            <th class="num-col">YTD Spend</th>
+          </tr>
+        </thead>
+        <tbody id="activeBrandsBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="section-title">Active boosts</div>
+  <section class="table-panel">
+    <div class="table-scroll">
+      <table class="boosts">
+        <thead>
+          <tr>
+            <th data-key="id">ID</th>
+            <th data-key="platform">Platform</th>
+            <th data-key="brand">Brand / Content</th>
+            <th data-key="start">Dates</th>
+            <th class="num-col" data-key="totalSpent">Spent</th>
+            <th class="num-col" data-key="deliveredViews">Views</th>
+            <th class="num-col" data-key="cpm">CPM</th>
+          </tr>
+        </thead>
+        <tbody id="reportBoostsBody"></tbody>
+      </table>
+      <div class="empty-state" id="reportEmptyState" style="display:none;">No active boosts in this window</div>
+    </div>
+  </section>
+
+  </div>
+
+  <div id="view-admin" class="view-panel">
+  <section class="data-panel" style="margin-bottom: 24px;">
+    <div class="data-status">
+      <span class="dot"></span>
+      <span>Brand budget is stored in this browser and applied to the By Brand tab, where margin is calculated automatically as 1 − (spend ÷ budget). It doesn't come from any CSV upload.</span>
+    </div>
+  </section>
+
+  <div class="section-title">Brand budget</div>
+  <section class="summary-panel">
+    <div class="table-scroll">
+      <table class="summary">
+        <thead>
+          <tr>
+            <th>Brand</th>
+            <th class="num-col">Brand Budget ($)</th>
+          </tr>
+        </thead>
+        <tbody id="adminBrandBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="section-title">Add a brand not yet in the data</div>
+  <section class="filter-panel">
+    <div class="filter-grid">
+      <div class="filter-field">
+        <label for="adminNewBrand">Brand name</label>
+        <input type="text" id="adminNewBrand" placeholder="e.g. Pepsi" />
+      </div>
+      <div class="filter-field">
+        <label for="adminNewBudget">Brand budget ($)</label>
+        <input type="number" id="adminNewBudget" placeholder="0" min="0" step="1" />
+      </div>
+      <div class="filter-field">
+        <label>&nbsp;</label>
+        <button class="upload-btn" id="adminAddBrandBtn" style="width:100%; border:none;">Add brand</button>
+      </div>
+    </div>
+  </section>
+
+  </div>
+
+  <div class="footer-note">Boosting Tracker · Jomboy Media · All tabs computed live from the 2026 Boosts data (default dataset, or your uploaded CSV)</div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script>
+// Auto-generated from Boosting Tracker - 2026 tab
+const BOOSTS_2026 = [{"id": 1, "platform": "FB", "brand": "WHG", "caption": "", "content": "WHG", "episode": "BB7 14", "start": "2026-01-07", "end": "2026-01-12", "startRaw": "1/7", "endRaw": "1/12", "totalBudget": 500.0, "totalSpent": 499.78, "deliveredViews": 175600, "cpm": 2.85, "projViews": null, "projCPM": null, "fanatics": false, "segment": false, "curationIntegration": false, "whg": true, "standard": false, "month": 1}, {"id": 2, "platform": "FB", "brand": "WHG", "caption": "", "content": "WHG", "episode": "BB7 15", "start": "2026-01-07", "end": "2026-01-12", "startRaw": "1/7", "endRaw": "1/12", "totalBudget": 500.0, "totalSpent": 499.96, "deliveredViews": 186900, "cpm": 2.68, "projViews": null, "projCPM": null, "fanatics": false, "segment": false, "curationIntegration": false, "whg": true, "standard": false, "month": 1}, {"id": 3, "platform": "FB", "brand": "WHG", "caption": "", "content": "WHG", "episode": "BB7 16", "start": "2026-01-07", "end": "2026-01-12", "startRaw": "1/7", "endRaw": "1/12", "totalBudget": 500.0, "totalSpent": 499.78, "deliveredViews": 185900, "cpm": 2.69, "projViews": null, "projCPM": null, "fanatics": false, "segment": false, "curationIntegration": false, "whg": true, "standard": false, "month": 1}, {"id": 4, "platform": "FB", "brand": "WHG", "caption": "", "content": "WHG", "episode": "CL GB 1", "start": "2026-02-05", "end": "2026-02-10", "startRaw": "2/5", "endRaw": "2/10", "totalBudget": 500.0, "totalSpent": 499.89, "deliveredViews": 127900, "cpm": 3.91, "projViews": null, "projCPM": null, "fanatics": false, "segment": false, "curationIntegration": false, "whg": true, "standard": false, "month": 2}, {"id": 5, "platform": "FB", "brand": "WHG", "caption": "", "content": "WHG", "episode": "CL GB 2", "start": "2026-02-13", "end": "2026-02-18", "startRaw": "2/13", "endRaw": "2/18", "totalBudget": 500.0, "totalSpent": 499.99, "deliveredViews": 155900, "cpm": 3.21, "projViews": null, "projCPM": null, "fanatics": false, "segment": false, "curationIntegration": false, "whg": true, "standard": false, "month": 2}, {"id": 6, "platform": "FB", "brand": "WHG", "caption": "", "content": "WHG", "episode": "CL GB 3", "start": "2026-02-19", "end": "2026-02-24", "startRaw": "2/19", "endRaw": "2/24", "totalBudget": 500.0, "totalSpent": 499.99, "deliveredViews": 159900, "cpm": 3.13, "projViews": null, "projCPM": null, "fanatics": false, "segment": false, "curationIntegration": false, "whg": true, "standard": false, "month": 2}, {"id": 7, "platform": "FB", "brand": "WHG", "caption": "", "content": "WHG", "episode": "CL GB 4", "start": "2026-02-19", "end": "2026-02-24", "startRaw": "2/19", "endRaw": "2/24", "totalBudget": 500.0, "totalSpent": 499.99, "deliveredViews": 117800, "cpm": 4.24, "projViews": null, "projCPM": null, "fanatics": false, "segment": false, "curationIntegration": false, "whg": true, "standard": false, "month": 2}, {"id": 8, "platform": "FB", "brand": "WHG", "caption": "", "content": "WHG", "episode": "CL GB 5", "start": "2026-02-19", "end": "2026-02-24", "startRaw": "2/19", "endRaw": "2/24", "totalBudget": 500.0, "totalSpent": 499.99, "deliveredViews": 135400, "cpm": 3.69, "projViews": null, "projCPM": null, "fanatics": false, "segment": false, "curationIntegration": false, "whg": true, "standard": false, "month": 2}, {"id": 9, "platform": "FB", "brand": "WHG", "caption": "", "content": "WHG", "episode": "CL GB 6", "start": "2026-02-20", "end": "2026-02-25", "startRaw": "2/20", "endRaw": "2/25", "totalBudget": 500.0, "totalSpent": 499.99, "deliveredViews": 162500, "cpm": 3.08, "projViews": null, "projCPM": null, "fanatics": false, "segment": false, "curationIntegration": false, "whg": true, "standard": false, "month": 2}, {"id": 10, "platform": "FB", "brand": "WHG", "caption": "", "content": "WHG", "episode": "CL GB 7", "start": "2026-02-21", "end": "2026-02-26", "startRaw": "2/21", "endRaw": "2/26", "totalBudget": 500.0, "totalSpent": 499.99, "deliveredViews": 142600, "cpm": 3.51, "projViews": null, "projCPM": null, "fanatics": false, "segment": false, "curationIntegration": false, "whg": true, "standard": false, "month": 2}, {"id": 11, "platform": "TW", "brand": "MLB The Show", "caption": "", "content": "Custom", "episode": "Link", "start": "2026-03-06", "end": "2026-03-06", "startRaw": "3/6", "endRaw": "3/6", "totalBudget": 250.0, "totalSpent": 244.07, "deliveredViews": 214954, "cpm": 1.14, "projViews": 166667, "projCPM": 1.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 3}, {"id": 12, "platform": "TW", "brand": "MLB The Show", "caption": "", "content": "Custom", "episode": "Link", "start": "2026-03-10", "end": "2026-03-13", "startRaw": "3/10", "endRaw": "3/13", "totalBudget": 750.0, "totalSpent": 695.57, "deliveredViews": 497577, "cpm": 1.4, "projViews": 500000, "projCPM": 1.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 3}, {"id": 13, "platform": "FB", "brand": "MLB The Show", "caption": "", "content": "Custom", "episode": "Link", "start": "2026-03-06", "end": "2026-03-10", "startRaw": "3/6", "endRaw": "3/10", "totalBudget": 1000.0, "totalSpent": 1003.01, "deliveredViews": 283149, "cpm": 3.54, "projViews": 285714, "projCPM": 3.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 3}, {"id": 14, "platform": "TW", "brand": "Lids", "caption": "", "content": "Player Interview", "episode": "Link", "start": "2026-03-06", "end": "2026-03-06", "startRaw": "3/6", "endRaw": "3/6", "totalBudget": 250.0, "totalSpent": 243.81, "deliveredViews": 195303, "cpm": 1.25, "projViews": 166667, "projCPM": 1.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 3}, {"id": 15, "platform": "TW", "brand": "Lids", "caption": "", "content": "Player Interview", "episode": "Link", "start": "2026-03-06", "end": "2026-03-06", "startRaw": "3/6", "endRaw": "3/6", "totalBudget": 250.0, "totalSpent": 242.39, "deliveredViews": 226765, "cpm": 1.07, "projViews": 166667, "projCPM": 1.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 3}, {"id": 16, "platform": "FB", "brand": "Amazon", "caption": "", "content": "This or That 1", "episode": "Link", "start": "2026-03-06", "end": "2026-03-10", "startRaw": "3/6", "endRaw": "3/10", "totalBudget": 3000.0, "totalSpent": 3011.53, "deliveredViews": 931565, "cpm": 3.23, "projViews": 857143, "projCPM": 3.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 3}, {"id": 17, "platform": "TW", "brand": "Under Armour", "caption": "", "content": "Challenge 1", "episode": "Link", "start": "2026-03-06", "end": "2026-03-10", "startRaw": "3/6", "endRaw": "3/10", "totalBudget": 250.0, "totalSpent": 239.19, "deliveredViews": 264426, "cpm": 0.9, "projViews": 166667, "projCPM": 1.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 3}, {"id": 18, "platform": "TW", "brand": "MLB The Show", "caption": "", "content": "Custom", "episode": "Link", "start": "2026-03-10", "end": "2026-03-13", "startRaw": "3/10", "endRaw": "3/13", "totalBudget": 1000.0, "totalSpent": 990.56, "deliveredViews": 760634, "cpm": 1.3, "projViews": 666667, "projCPM": 1.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 3}, {"id": 19, "platform": "FB", "brand": "MLB The Show", "caption": "", "content": "Custom", "episode": "Link", "start": "2026-03-06", "end": "2026-03-10", "startRaw": "3/6", "endRaw": "3/10", "totalBudget": 1000.0, "totalSpent": 998.01, "deliveredViews": 220368, "cpm": 4.53, "projViews": 285714, "projCPM": 3.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 3}, {"id": 20, "platform": "TW", "brand": "MLB The Show", "caption": "", "content": "Custom", "episode": "Link", "start": "2026-03-10", "end": "2026-03-14", "startRaw": "3/10", "endRaw": "3/14", "totalBudget": 1000.0, "totalSpent": 943.23, "deliveredViews": 681925, "cpm": 1.38, "projViews": 666667, "projCPM": 1.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 3}, {"id": 21, "platform": "FB", "brand": "MLB The Show", "caption": "", "content": "Custom", "episode": "Link", "start": "2026-03-10", "end": "2026-03-14", "startRaw": "3/10", "endRaw": "3/14", "totalBudget": 1000.0, "totalSpent": 1005.11, "deliveredViews": 325502, "cpm": 3.09, "projViews": 285714, "projCPM": 3.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 3}, {"id": 22, "platform": "FB", "brand": "Amazon", "caption": "", "content": "This or That 2", "episode": "Link", "start": "2026-03-10", "end": "2026-03-12", "startRaw": "3/10", "endRaw": "3/12", "totalBudget": 1768.0, "totalSpent": 1768.0, "deliveredViews": 547255, "cpm": 3.23, "projViews": 505143, "projCPM": 3.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 3}, {"id": 23, "platform": "IG", "brand": "Amazon", "caption": "", "content": "This or That 2", "episode": "Link", "start": "2026-03-12", "end": "2026-03-14", "startRaw": "3/12", "endRaw": "3/14", "totalBudget": 1200.0, "totalSpent": 1047.22, "deliveredViews": 475300, "cpm": 2.2, "projViews": null, "projCPM": null, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 3}, {"id": 24, "platform": "FB", "brand": "Amazon", "caption": "", "content": "This or That 3", "episode": "Link", "start": "2026-03-12", "end": "2026-03-15", "startRaw": "3/12", "endRaw": "3/15", "totalBudget": 2500.0, "totalSpent": 2511.31, "deliveredViews": 748400, "cpm": 3.36, "projViews": 714286, "projCPM": 3.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 3}, {"id": 25, "platform": "IG", "brand": "Amazon", "caption": "", "content": "This or That 3", "episode": "Link", "start": "2026-03-12", "end": "2026-03-15", "startRaw": "3/12", "endRaw": "3/15", "totalBudget": 1000.0, "totalSpent": 1006.0, "deliveredViews": 442760, "cpm": 2.27, "projViews": 333333, "projCPM": 3.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 3}, {"id": 26, "platform": "FB", "brand": "Amazon", "caption": "", "content": "This or That 4", "episode": "FBR", "start": "2026-03-16", "end": "2026-03-20", "startRaw": "3/16", "endRaw": "3/20", "totalBudget": 1000.0, "totalSpent": 999.46, "deliveredViews": 273705, "cpm": 3.65, "projViews": 285714, "projCPM": 3.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 3}, {"id": 27, "platform": "IG", "brand": "Amazon", "caption": "", "content": "This or That 4", "episode": "IGR", "start": "2026-03-16", "end": "2026-03-20", "startRaw": "3/16", "endRaw": "3/20", "totalBudget": 1000.0, "totalSpent": 999.79, "deliveredViews": 163229, "cpm": 6.13, "projViews": 333333, "projCPM": 3.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 3}, {"id": 28, "platform": "FB", "brand": "Amazon", "caption": "", "content": "This or That 5", "episode": "FBR", "start": "2026-03-16", "end": "2026-03-20", "startRaw": "3/16", "endRaw": "3/20", "totalBudget": 2000.0, "totalSpent": 1825.86, "deliveredViews": 401984, "cpm": 4.54, "projViews": 571429, "projCPM": 3.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 3}, {"id": 29, "platform": "IG", "brand": "Amazon", "caption": "", "content": "This or That 5", "episode": "IGR", "start": "2026-03-18", "end": "2026-03-20", "startRaw": "3/18", "endRaw": "3/20", "totalBudget": 0.0, "totalSpent": null, "deliveredViews": null, "cpm": null, "projViews": 0, "projCPM": 3.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 3}, {"id": 31, "platform": "FB", "brand": "MLB The Show", "caption": "", "content": "BD Arch", "episode": "FBR", "start": "2026-03-17", "end": "2026-03-20", "startRaw": "3/17", "endRaw": "3/20", "totalBudget": 1000.0, "totalSpent": 1000.0, "deliveredViews": 379960, "cpm": 2.63, "projViews": 285714, "projCPM": 3.5, "fanatics": false, "segment": false, "curationIntegration": false, "whg": false, "standard": true, "month": 3}, {"id": 32, "platform": "IG", "brand": "MLB The Show", "caption": "", "content": "BD Arch", "episode": "IGR", "start": "2026-03-17", "end": "2026-03-20", "startRaw": "3/17", "endRaw": "3/20", "totalBudget": 0.0, "totalSpent": null, "deliveredViews": null, "cpm": null, "projViews": 0, "projCPM": 3.0, "fanatics": false, "segment": false, "curationIntegration": false, "whg": false, "standard": true, "month": 3}, {"id": 33, "platform": "TT", "brand": "MLB The Show", "caption": "", "content": "BD Arch", "episode": "TT", "start": "2026-03-17", "end": "2026-03-21", "startRaw": "3/17", "endRaw": "3/21", "totalBudget": 1000.0, "totalSpent": 1000.0, "deliveredViews": 300000, "cpm": 3.33, "projViews": 400000, "projCPM": 2.5, "fanatics": false, "segment": false, "curationIntegration": false, "whg": false, "standard": true, "month": 3}, {"id": 34, "platform": "FB", "brand": "MLB The Show", "caption": "", "content": "BD Arch", "episode": "FBR", "start": "2026-03-17", "end": "2026-03-21", "startRaw": "3/17", "endRaw": "3/21", "totalBudget": 1250.0, "totalSpent": 1000.0, "deliveredViews": 379960, "cpm": 2.63, "projViews": 357143, "projCPM": 3.5, "fanatics": false, "segment": false, "curationIntegration": false, "whg": false, "standard": true, "month": 3}, {"id": 35, "platform": "IG", "brand": "MLB The Show", "caption": "", "content": "BD Arch", "episode": "IGR", "start": "2026-03-17", "end": "2026-03-21", "startRaw": "3/17", "endRaw": "3/21", "totalBudget": 0.0, "totalSpent": null, "deliveredViews": null, "cpm": null, "projViews": 0, "projCPM": 3.0, "fanatics": false, "segment": false, "curationIntegration": false, "whg": false, "standard": true, "month": 3}, {"id": 36, "platform": "FB", "brand": "MLB The Show", "caption": "", "content": "BT Segment", "episode": "FBR", "start": "2026-03-18", "end": "2026-03-21", "startRaw": "3/18", "endRaw": "3/21", "totalBudget": 600.0, "totalSpent": 593.05, "deliveredViews": 144228, "cpm": 4.11, "projViews": 171429, "projCPM": 3.5, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 3}, {"id": 37, "platform": "FB", "brand": "MLB The Show", "caption": "", "content": "BT Segment", "episode": "FBR", "start": "2026-03-18", "end": "2026-03-21", "startRaw": "3/18", "endRaw": "3/21", "totalBudget": 600.0, "totalSpent": 593.89, "deliveredViews": 121354, "cpm": 4.89, "projViews": 171429, "projCPM": 3.5, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 3}, {"id": 38, "platform": "FB", "brand": "MLB The Show", "caption": "", "content": "TB Segment", "episode": "FBR", "start": "2026-03-18", "end": "2026-03-21", "startRaw": "3/18", "endRaw": "3/21", "totalBudget": 300.0, "totalSpent": 299.48, "deliveredViews": 97336, "cpm": 3.08, "projViews": 85714, "projCPM": 3.5, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 3}, {"id": 39, "platform": "IG", "brand": "MLB The Show", "caption": "", "content": "TB Segment", "episode": "IGR", "start": "2026-03-18", "end": "2026-03-21", "startRaw": "3/18", "endRaw": "3/21", "totalBudget": 300.0, "totalSpent": 300.0, "deliveredViews": 75600, "cpm": 3.97, "projViews": 100000, "projCPM": 3.0, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 3}, {"id": 40, "platform": "FB", "brand": "MLB The Show", "caption": "", "content": "TB Segment", "episode": "FBR", "start": "2026-03-18", "end": "2026-03-21", "startRaw": "3/18", "endRaw": "3/21", "totalBudget": 300.0, "totalSpent": 233.02, "deliveredViews": 148299, "cpm": 1.57, "projViews": 85714, "projCPM": 3.5, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 3}, {"id": 41, "platform": "IG", "brand": "MLB The Show", "caption": "", "content": "TB Segment", "episode": "IGR", "start": "2026-03-18", "end": "2026-03-21", "startRaw": "3/18", "endRaw": "3/21", "totalBudget": 300.0, "totalSpent": 216.36, "deliveredViews": 37436, "cpm": 5.78, "projViews": 100000, "projCPM": 3.0, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 3}, {"id": 42, "platform": "FB", "brand": "MLB The Show", "caption": "", "content": "TY Segment", "episode": "FBR", "start": "2026-03-18", "end": "2026-03-22", "startRaw": "3/18", "endRaw": "3/22", "totalBudget": 300.0, "totalSpent": null, "deliveredViews": null, "cpm": null, "projViews": 85714, "projCPM": 3.5, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 3}, {"id": 43, "platform": "IG", "brand": "MLB The Show", "caption": "", "content": "TY Segment", "episode": "IG", "start": "2026-03-18", "end": "2026-03-22", "startRaw": "3/18", "endRaw": "3/22", "totalBudget": 300.0, "totalSpent": null, "deliveredViews": null, "cpm": null, "projViews": 100000, "projCPM": 3.0, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 3}, {"id": 44, "platform": "FB", "brand": "MLB The Show", "caption": "", "content": "TY Segment", "episode": "FBR", "start": "2026-03-18", "end": "2026-03-22", "startRaw": "3/18", "endRaw": "3/22", "totalBudget": 300.0, "totalSpent": null, "deliveredViews": null, "cpm": null, "projViews": 85714, "projCPM": 3.5, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 3}, {"id": 45, "platform": "IG", "brand": "MLB The Show", "caption": "", "content": "TY Segment", "episode": "IG", "start": "2026-03-18", "end": "2026-03-22", "startRaw": "3/18", "endRaw": "3/22", "totalBudget": 300.0, "totalSpent": null, "deliveredViews": null, "cpm": null, "projViews": 100000, "projCPM": 3.0, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 3}, {"id": 46, "platform": "FB", "brand": "WHG", "caption": "", "content": "WHG", "episode": "CL SB 3", "start": "2026-03-19", "end": "2026-03-23", "startRaw": "3/19", "endRaw": "3/23", "totalBudget": 500.0, "totalSpent": 499.99, "deliveredViews": 130819, "cpm": 3.82, "projViews": null, "projCPM": null, "fanatics": false, "segment": false, "curationIntegration": false, "whg": true, "standard": false, "month": 3}, {"id": 47, "platform": "FB", "brand": "WHG", "caption": "", "content": "WHG", "episode": "CL SB 4", "start": "2026-03-19", "end": "2026-03-23", "startRaw": "3/19", "endRaw": "3/23", "totalBudget": 500.0, "totalSpent": 499.99, "deliveredViews": 115738, "cpm": 4.32, "projViews": null, "projCPM": null, "fanatics": false, "segment": false, "curationIntegration": false, "whg": true, "standard": false, "month": 3}, {"id": 48, "platform": "FB", "brand": "Amazon", "caption": "", "content": "This or That 4", "episode": "FBR", "start": "2026-03-23", "end": "2026-03-24", "startRaw": "3/23", "endRaw": "3/24", "totalBudget": 3000.0, "totalSpent": 2465.15, "deliveredViews": 202572, "cpm": 12.17, "projViews": 857143, "projCPM": 3.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 3}, {"id": 49, "platform": "FB", "brand": "Amazon", "caption": "", "content": "This or That 5", "episode": "FBR", "start": "2026-03-23", "end": "2026-03-24", "startRaw": "3/23", "endRaw": "3/24", "totalBudget": 2000.0, "totalSpent": 1643.39, "deliveredViews": 158345, "cpm": 10.38, "projViews": 571429, "projCPM": 3.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 3}, {"id": 50, "platform": "FB", "brand": "WHG", "caption": "", "content": "WHG", "episode": "CL SB 1", "start": "2026-03-20", "end": "2026-03-25", "startRaw": "3/20", "endRaw": "3/25", "totalBudget": 500.0, "totalSpent": 499.97, "deliveredViews": 122107, "cpm": 4.09, "projViews": null, "projCPM": null, "fanatics": false, "segment": false, "curationIntegration": false, "whg": true, "standard": false, "month": 3}, {"id": 51, "platform": "FB", "brand": "Amazon", "caption": "", "content": "This or That 4", "episode": "FBR", "start": "2026-03-24", "end": "2026-03-26", "startRaw": "3/24", "endRaw": "3/26", "totalBudget": 1000.0, "totalSpent": 607.24, "deliveredViews": 110064, "cpm": 5.52, "projViews": 285714, "projCPM": 3.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 3}, {"id": 52, "platform": "FB", "brand": "Amazon", "caption": "", "content": "This or That 5", "episode": "FBR", "start": "2026-03-24", "end": "2026-03-26", "startRaw": "3/24", "endRaw": "3/26", "totalBudget": 1000.0, "totalSpent": 600.74, "deliveredViews": 114930, "cpm": 5.23, "projViews": 285714, "projCPM": 3.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 3}, {"id": 53, "platform": "FB", "brand": "NBC", "caption": "", "content": "Division Storylines 1", "episode": "FBR", "start": "2026-03-24", "end": "2026-03-27", "startRaw": "3/24", "endRaw": "3/27", "totalBudget": 600.0, "totalSpent": 599.73, "deliveredViews": 93645, "cpm": 6.4, "projViews": 171429, "projCPM": 3.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 3}, {"id": 54, "platform": "FB", "brand": "NBC", "caption": "", "content": "Division Storylines 2", "episode": "FBR", "start": "2026-03-24", "end": "2026-03-27", "startRaw": "3/24", "endRaw": "3/27", "totalBudget": 600.0, "totalSpent": 600.0, "deliveredViews": 134161, "cpm": 4.47, "projViews": 171429, "projCPM": 3.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 3}, {"id": 55, "platform": "FB", "brand": "NBC", "caption": "", "content": "Division Storylines 3", "episode": "FBR", "start": "2026-03-24", "end": "2026-03-27", "startRaw": "3/24", "endRaw": "3/27", "totalBudget": 600.0, "totalSpent": 600.0, "deliveredViews": 136898, "cpm": 4.38, "projViews": 171429, "projCPM": 3.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 3}, {"id": 56, "platform": "FB", "brand": "NBC", "caption": "", "content": "NL CY Young", "episode": "FBR", "start": "2026-03-24", "end": "2026-03-27", "startRaw": "3/24", "endRaw": "3/27", "totalBudget": 1050.0, "totalSpent": 531.46, "deliveredViews": 43720, "cpm": 12.16, "projViews": 300000, "projCPM": 3.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 3}, {"id": 57, "platform": "FB", "brand": "WHG", "caption": "", "content": "WHG", "episode": "CL SB 2", "start": "2026-03-24", "end": "2026-03-29", "startRaw": "3/24", "endRaw": "3/29", "totalBudget": 500.0, "totalSpent": 499.98, "deliveredViews": 114518, "cpm": 4.37, "projViews": null, "projCPM": null, "fanatics": false, "segment": false, "curationIntegration": false, "whg": true, "standard": false, "month": 3}, {"id": 58, "platform": "IG", "brand": "Apple TV", "caption": "", "content": "Friday Night Baseball 1", "episode": "IG", "start": "2026-03-27", "end": "2026-03-29", "startRaw": "3/27", "endRaw": "3/29", "totalBudget": 1500.0, "totalSpent": 1497.08, "deliveredViews": 264241, "cpm": 5.67, "projViews": 428571, "projCPM": 3.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 3}, {"id": 59, "platform": "FB", "brand": "Apple TV", "caption": "", "content": "Friday Night Baseball 1", "episode": "FB", "start": "2026-03-27", "end": "2026-03-29", "startRaw": "3/27", "endRaw": "3/29", "totalBudget": 1500.0, "totalSpent": 1497.08, "deliveredViews": 264241, "cpm": 5.67, "projViews": 428571, "projCPM": 3.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 3}, {"id": 60, "platform": "TT", "brand": "NBC", "caption": "", "content": "NL MVP", "episode": "TT", "start": "2026-03-26", "end": "2026-03-31", "startRaw": "3/26", "endRaw": "3/31", "totalBudget": 1010.0, "totalSpent": 1010.0, "deliveredViews": 202500, "cpm": 4.99, "projViews": 404000, "projCPM": 2.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 3}, {"id": 61, "platform": "TW", "brand": "MLB The Show", "caption": "", "content": "Archive - Judge Ejection", "episode": "TW", "start": "2026-03-27", "end": "2026-03-31", "startRaw": "3/27", "endRaw": "3/31", "totalBudget": 1000.0, "totalSpent": 931.88, "deliveredViews": 1983089, "cpm": 0.47, "projViews": 666667, "projCPM": 1.5, "fanatics": false, "segment": false, "curationIntegration": false, "whg": false, "standard": true, "month": 3}, {"id": 62, "platform": "FB", "brand": "NBC", "caption": "", "content": "Division Storylines 4", "episode": "FB", "start": "2026-03-27", "end": "2026-03-31", "startRaw": "3/27", "endRaw": "3/31", "totalBudget": 800.0, "totalSpent": 797.64, "deliveredViews": 167829, "cpm": 4.75, "projViews": 228571, "projCPM": 3.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 3}, {"id": 63, "platform": "FB", "brand": "NBC", "caption": "", "content": "Division Storylines 5", "episode": "FB", "start": "2026-03-27", "end": "2026-03-31", "startRaw": "3/27", "endRaw": "3/31", "totalBudget": 800.0, "totalSpent": 798.85, "deliveredViews": 160347, "cpm": 4.98, "projViews": 228571, "projCPM": 3.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 3}, {"id": 64, "platform": "FB", "brand": "NBC", "caption": "", "content": "Division Storylines 6", "episode": "FB", "start": "2026-03-27", "end": "2026-03-31", "startRaw": "3/27", "endRaw": "3/31", "totalBudget": 800.0, "totalSpent": 798.2, "deliveredViews": 129612, "cpm": 6.16, "projViews": 228571, "projCPM": 3.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 3}, {"id": 65, "platform": "FB", "brand": "NBC", "caption": "", "content": "NL CY Young", "episode": "FB", "start": "2026-03-27", "end": "2026-03-31", "startRaw": "3/27", "endRaw": "3/31", "totalBudget": 800.0, "totalSpent": 501.53, "deliveredViews": 35702, "cpm": 14.05, "projViews": 228571, "projCPM": 3.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 3}, {"id": 66, "platform": "FB", "brand": "NBC", "caption": "", "content": "Opening Day Moments", "episode": "FB", "start": "2026-03-27", "end": "2026-03-31", "startRaw": "3/27", "endRaw": "3/31", "totalBudget": 800.0, "totalSpent": 776.89, "deliveredViews": 172784, "cpm": 4.5, "projViews": 228571, "projCPM": 3.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 3}, {"id": 67, "platform": "TW", "brand": "MLB The Show", "caption": "", "content": "Archive - Fan Steals Ball", "episode": "TW", "start": "2026-03-31", "end": "2026-04-02", "startRaw": "3/31", "endRaw": "4/2", "totalBudget": 200.0, "totalSpent": 20.78, "deliveredViews": 167374, "cpm": 0.12, "projViews": 133333, "projCPM": 1.5, "fanatics": false, "segment": false, "curationIntegration": false, "whg": false, "standard": true, "month": 3}, {"id": 68, "platform": "TW", "brand": "MLB The Show", "caption": "", "content": "Talkin' Baseball Segment Clip 1", "episode": "TW", "start": "2026-03-31", "end": "2026-04-02", "startRaw": "3/31", "endRaw": "4/2", "totalBudget": 200.0, "totalSpent": 47.28, "deliveredViews": 353056, "cpm": 0.13, "projViews": 133333, "projCPM": 1.5, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 3}, {"id": 69, "platform": "TW", "brand": "MLB The Show", "caption": "", "content": "Talkin' Baseball Segment Clip 2", "episode": "TW", "start": "2026-03-31", "end": "2026-04-02", "startRaw": "3/31", "endRaw": "4/2", "totalBudget": 200.0, "totalSpent": 80.32, "deliveredViews": 539305, "cpm": 0.15, "projViews": 133333, "projCPM": 1.5, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 3}, {"id": 70, "platform": "TW", "brand": "MLB The Show", "caption": "", "content": "Talkin' Baseball Segment Clip 3", "episode": "TW", "start": "2026-03-31", "end": "2026-04-02", "startRaw": "3/31", "endRaw": "4/2", "totalBudget": 200.0, "totalSpent": 79.61, "deliveredViews": 554433, "cpm": 0.14, "projViews": 133333, "projCPM": 1.5, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 3}, {"id": 71, "platform": "TW", "brand": "MLB The Show", "caption": "", "content": "Talkin' Yanks Segment Clip 1", "episode": "TW", "start": "2026-03-31", "end": "2026-04-02", "startRaw": "3/31", "endRaw": "4/2", "totalBudget": 200.0, "totalSpent": 74.92, "deliveredViews": 746579, "cpm": 0.1, "projViews": 133333, "projCPM": 1.5, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 3}, {"id": 72, "platform": "TW", "brand": "MLB The Show", "caption": "", "content": "Talkin' Yanks Segment Clip 2", "episode": "TW", "start": "2026-04-01", "end": "2026-04-02", "startRaw": "4/1", "endRaw": "4/2", "totalBudget": 20.0, "totalSpent": 22.86, "deliveredViews": 168316, "cpm": 0.14, "projViews": 13333, "projCPM": 1.5, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 4}, {"id": 73, "platform": "TW", "brand": "MLB The Show", "caption": "", "content": "Talkin' Yanks Segment Clip 3", "episode": "TW", "start": "2026-04-01", "end": "2026-04-02", "startRaw": "4/1", "endRaw": "4/2", "totalBudget": 20.0, "totalSpent": 24.3, "deliveredViews": 147958, "cpm": 0.16, "projViews": 13333, "projCPM": 1.5, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 4}, {"id": 74, "platform": "FB", "brand": "Propfinder", "caption": "", "content": "Livestream Clip 1", "episode": "FB Link", "start": "2026-03-30", "end": "2026-04-03", "startRaw": "3/30", "endRaw": "4/3", "totalBudget": 500.0, "totalSpent": 247.96, "deliveredViews": 77198, "cpm": 3.21, "projViews": 142857, "projCPM": 3.5, "fanatics": false, "segment": false, "curationIntegration": false, "whg": false, "standard": true, "month": 3}, {"id": 75, "platform": "FB", "brand": "Propfinder", "caption": "", "content": "Livestream Clip 2", "episode": "FB Link", "start": "2026-03-30", "end": "2026-04-03", "startRaw": "3/30", "endRaw": "4/3", "totalBudget": 500.0, "totalSpent": 255.9, "deliveredViews": 155506, "cpm": 1.65, "projViews": 142857, "projCPM": 3.5, "fanatics": false, "segment": false, "curationIntegration": false, "whg": false, "standard": true, "month": 3}, {"id": 76, "platform": "FB", "brand": "Propfinder", "caption": "", "content": "Livestream Clip 3", "episode": "FB Link", "start": "2026-03-30", "end": "2026-04-03", "startRaw": "3/30", "endRaw": "4/3", "totalBudget": 500.0, "totalSpent": 283.57, "deliveredViews": 87265, "cpm": 3.25, "projViews": 142857, "projCPM": 3.5, "fanatics": false, "segment": false, "curationIntegration": false, "whg": false, "standard": true, "month": 3}, {"id": 77, "platform": "TT", "brand": "NBC", "caption": "", "content": "NL CY Young", "episode": "TT", "start": "2026-03-30", "end": "2026-04-03", "startRaw": "3/30", "endRaw": "4/3", "totalBudget": 525.0, "totalSpent": 365.85, "deliveredViews": 66657, "cpm": 5.49, "projViews": 210000, "projCPM": 2.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 3}, {"id": 78, "platform": "TT", "brand": "NBC", "caption": "", "content": "Opening Day Moments", "episode": "TT", "start": "2026-03-30", "end": "2026-04-03", "startRaw": "3/30", "endRaw": "4/3", "totalBudget": 992.0, "totalSpent": 689.75, "deliveredViews": 126955, "cpm": 5.43, "projViews": 396800, "projCPM": 2.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 3}, {"id": 79, "platform": "FB", "brand": "NBC", "caption": "", "content": "NL MVP", "episode": "FB", "start": "2026-03-30", "end": "2026-04-03", "startRaw": "3/30", "endRaw": "4/3", "totalBudget": 1000.0, "totalSpent": 478.76, "deliveredViews": 123300, "cpm": 3.88, "projViews": 285714, "projCPM": 3.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 3}, {"id": 80, "platform": "TW", "brand": "MLB The Show", "caption": "", "content": "Custom Social", "episode": "X", "start": "2026-04-03", "end": "2026-04-05", "startRaw": "4/3", "endRaw": "4/5", "totalBudget": 60.0, "totalSpent": 150.0, "deliveredViews": 211243, "cpm": 0.71, "projViews": 40000, "projCPM": 1.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 4}, {"id": 81, "platform": "FB", "brand": "WHG", "caption": "", "content": "WHG", "episode": "CL SB 5", "start": "2026-04-01", "end": "2026-04-06", "startRaw": "4/1", "endRaw": "4/6", "totalBudget": 500.0, "totalSpent": 499.55, "deliveredViews": 110552, "cpm": 4.52, "projViews": null, "projCPM": null, "fanatics": false, "segment": false, "curationIntegration": false, "whg": true, "standard": false, "month": 4}, {"id": 82, "platform": "FB", "brand": "WHG", "caption": "", "content": "WHG", "episode": "CL SB 6", "start": "2026-04-01", "end": "2026-04-06", "startRaw": "4/1", "endRaw": "4/6", "totalBudget": 500.0, "totalSpent": 499.99, "deliveredViews": 109169, "cpm": 4.58, "projViews": null, "projCPM": null, "fanatics": false, "segment": false, "curationIntegration": false, "whg": true, "standard": false, "month": 4}, {"id": 83, "platform": "FB", "brand": "WHG", "caption": "", "content": "WHG", "episode": "CL SB 7", "start": "2026-04-01", "end": "2026-04-06", "startRaw": "4/1", "endRaw": "4/6", "totalBudget": 500.0, "totalSpent": 499.82, "deliveredViews": 134636, "cpm": 3.71, "projViews": null, "projCPM": null, "fanatics": false, "segment": false, "curationIntegration": false, "whg": true, "standard": false, "month": 4}, {"id": 84, "platform": "TW", "brand": "MLB The Show", "caption": "", "content": "Custom Social", "episode": "X", "start": "2026-04-08", "end": "2026-04-10", "startRaw": "4/8", "endRaw": "4/10", "totalBudget": 150.0, "totalSpent": 68.49, "deliveredViews": 195198, "cpm": 0.35, "projViews": 100000, "projCPM": 1.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 4}, {"id": 85, "platform": "FB", "brand": "MLB The Show", "caption": "", "content": "BT Segment 1", "episode": "FBR", "start": "2026-04-08", "end": "2026-04-12", "startRaw": "4/8", "endRaw": "4/12", "totalBudget": 1000.0, "totalSpent": 996.5, "deliveredViews": 97620, "cpm": 10.21, "projViews": 285714, "projCPM": 3.5, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 4}, {"id": 86, "platform": "FB", "brand": "MLB The Show", "caption": "", "content": "BT Segment 2", "episode": "FBR", "start": "2026-04-08", "end": "2026-04-12", "startRaw": "4/8", "endRaw": "4/12", "totalBudget": 1000.0, "totalSpent": 998.5, "deliveredViews": 215918, "cpm": 4.62, "projViews": 285714, "projCPM": 3.5, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 4}, {"id": 87, "platform": "FB", "brand": "MLB The Show", "caption": "", "content": "BT Segment 3", "episode": "FBR", "start": "2026-04-08", "end": "2026-04-12", "startRaw": "4/8", "endRaw": "4/12", "totalBudget": 1000.0, "totalSpent": 997.41, "deliveredViews": 193774, "cpm": 5.15, "projViews": 285714, "projCPM": 3.5, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 4}, {"id": 88, "platform": "FB", "brand": "Coors", "caption": "", "content": "Shea Segment #2", "episode": "FB Link", "start": "2026-04-14", "end": "2026-04-18", "startRaw": "4/14", "endRaw": "4/18", "totalBudget": 225.0, "totalSpent": 148.03, "deliveredViews": 12852, "cpm": 11.52, "projViews": 50000, "projCPM": 4.5, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 4}, {"id": 89, "platform": "FB", "brand": "Coors", "caption": "", "content": "Shea Segment #3", "episode": "FB Link", "start": "2026-04-14", "end": "2026-04-18", "startRaw": "4/14", "endRaw": "4/18", "totalBudget": 180.0, "totalSpent": 179.84, "deliveredViews": 39455, "cpm": 4.56, "projViews": 40000, "projCPM": 4.5, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 4}, {"id": 90, "platform": "FB", "brand": "Coors", "caption": "", "content": "Shea Segment #1", "episode": "FB Link", "start": "2026-04-14", "end": "2026-04-19", "startRaw": "4/14", "endRaw": "4/19", "totalBudget": 294.0, "totalSpent": 355.57, "deliveredViews": 106800, "cpm": 3.33, "projViews": 65333, "projCPM": 4.5, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 4}, {"id": 91, "platform": "FB", "brand": "WHG", "caption": "", "content": "WHG", "episode": "CL BB 1", "start": "2026-04-16", "end": "2026-04-20", "startRaw": "4/16", "endRaw": "4/20", "totalBudget": 600.0, "totalSpent": 593.78, "deliveredViews": 107700, "cpm": 5.51, "projViews": null, "projCPM": null, "fanatics": false, "segment": false, "curationIntegration": false, "whg": true, "standard": false, "month": 4}, {"id": 92, "platform": "FB", "brand": "WHG", "caption": "", "content": "WHG", "episode": "CL BB 2", "start": "2026-04-16", "end": "2026-04-20", "startRaw": "4/16", "endRaw": "4/20", "totalBudget": 600.0, "totalSpent": 594.4, "deliveredViews": 146500, "cpm": 4.06, "projViews": null, "projCPM": null, "fanatics": false, "segment": false, "curationIntegration": false, "whg": true, "standard": false, "month": 4}, {"id": 93, "platform": "FB", "brand": "WHG", "caption": "", "content": "WHG", "episode": "CL BB 3", "start": "2026-04-16", "end": "2026-04-20", "startRaw": "4/16", "endRaw": "4/20", "totalBudget": 600.0, "totalSpent": 593.84, "deliveredViews": 136400, "cpm": 4.35, "projViews": null, "projCPM": null, "fanatics": false, "segment": false, "curationIntegration": false, "whg": true, "standard": false, "month": 4}, {"id": 94, "platform": "FB", "brand": "Sideline Swap", "caption": "", "content": "WHC Episode", "episode": "FB Link", "start": "2026-04-18", "end": "2026-04-22", "startRaw": "4/18", "endRaw": "4/22", "totalBudget": 160.0, "totalSpent": 119.9, "deliveredViews": 34351, "cpm": 3.49, "projViews": 35556, "projCPM": 4.5, "fanatics": false, "segment": false, "curationIntegration": false, "whg": false, "standard": true, "month": 4}, {"id": 95, "platform": "FB", "brand": "Amazon", "caption": "", "content": "Game Saving Plays (1)", "episode": "FBR", "start": "2026-04-14", "end": "2026-04-24", "startRaw": "4/14", "endRaw": "4/24", "totalBudget": 4150.0, "totalSpent": 3742.77, "deliveredViews": 1061054, "cpm": 3.53, "projViews": 922222, "projCPM": 4.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 4}, {"id": 96, "platform": "TW", "brand": "Baja Blast", "caption": "", "content": "Best Homers 1", "episode": "X Link", "start": "2026-04-22", "end": "2026-04-24", "startRaw": "4/22", "endRaw": "4/24", "totalBudget": 120.0, "totalSpent": 112.61, "deliveredViews": 120529, "cpm": 0.93, "projViews": 240000, "projCPM": 0.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 4}, {"id": 97, "platform": "TW", "brand": "Baja Blast", "caption": "", "content": "Best Homers 2", "episode": "X Link", "start": "2026-04-22", "end": "2026-04-24", "startRaw": "4/22", "endRaw": "4/24", "totalBudget": 141.0, "totalSpent": 133.52, "deliveredViews": 141781, "cpm": 0.94, "projViews": 282000, "projCPM": 0.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 4}, {"id": 98, "platform": "FB", "brand": "Apple TV", "caption": "", "content": "BT Segment", "episode": "FBR Link", "start": "2026-04-21", "end": "2026-04-25", "startRaw": "4/21", "endRaw": "4/25", "totalBudget": 630.0, "totalSpent": 629.87, "deliveredViews": 148300, "cpm": 4.25, "projViews": 140000, "projCPM": 4.5, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 4}, {"id": 99, "platform": "FB", "brand": "Amazon", "caption": "", "content": "BT Segment", "episode": "FBR Link", "start": "2026-04-22", "end": "2026-04-26", "startRaw": "4/22", "endRaw": "4/26", "totalBudget": 216.0, "totalSpent": 215.99, "deliveredViews": 60797, "cpm": 3.55, "projViews": 48000, "projCPM": 4.5, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 4}, {"id": 100, "platform": "FB", "brand": "WHG", "caption": "", "content": "WHG", "episode": "CL BB 4", "start": "2026-04-23", "end": "2026-04-27", "startRaw": "4/23", "endRaw": "4/27", "totalBudget": 500.0, "totalSpent": 499.76, "deliveredViews": 122700, "cpm": 4.07, "projViews": null, "projCPM": null, "fanatics": false, "segment": false, "curationIntegration": false, "whg": true, "standard": false, "month": 4}, {"id": 101, "platform": "FB", "brand": "Amazon", "caption": "", "content": "BT Segment", "episode": "FBR Link", "start": "2026-04-22", "end": "2026-04-27", "startRaw": "4/22", "endRaw": "4/27", "totalBudget": 150.0, "totalSpent": 149.52, "deliveredViews": 46687, "cpm": 3.2, "projViews": 33333, "projCPM": 4.5, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 4}, {"id": 102, "platform": "FB", "brand": "Coors", "caption": "", "content": "Shea Segment #4", "episode": "FB Link", "start": "2026-04-22", "end": "2026-04-27", "startRaw": "4/22", "endRaw": "4/27", "totalBudget": 180.0, "totalSpent": 180.0, "deliveredViews": 51724, "cpm": 3.48, "projViews": 40000, "projCPM": 4.5, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 4}, {"id": 103, "platform": "FB", "brand": "Corona", "caption": "", "content": "CL BB Clip 1", "episode": "FBR", "start": "2026-04-24", "end": "2026-04-28", "startRaw": "4/24", "endRaw": "4/28", "totalBudget": 400.0, "totalSpent": 389.71, "deliveredViews": 186000, "cpm": 2.1, "projViews": 88889, "projCPM": 4.5, "fanatics": false, "segment": false, "curationIntegration": false, "whg": false, "standard": true, "month": 4}, {"id": 104, "platform": "TW", "brand": "Baja Blast", "caption": "", "content": "Best Homers 3", "episode": "X Link", "start": "2026-04-27", "end": "2026-04-28", "startRaw": "4/27", "endRaw": "4/28", "totalBudget": 260.0, "totalSpent": 110.31, "deliveredViews": 138017, "cpm": 0.8, "projViews": 260000, "projCPM": 1.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 4}, {"id": 105, "platform": "FB", "brand": "WHG", "caption": "", "content": "WHG", "episode": "CL BB 5", "start": "2026-04-27", "end": "2026-05-01", "startRaw": "4/27", "endRaw": "5/1", "totalBudget": 500.0, "totalSpent": 500.0, "deliveredViews": 113100, "cpm": 4.42, "projViews": null, "projCPM": null, "fanatics": false, "segment": false, "curationIntegration": false, "whg": true, "standard": false, "month": 4}, {"id": 106, "platform": "FB", "brand": "WHG", "caption": "", "content": "WHG", "episode": "CL BB 6", "start": "2026-04-27", "end": "2026-05-01", "startRaw": "4/27", "endRaw": "5/1", "totalBudget": 500.0, "totalSpent": 500.0, "deliveredViews": 120800, "cpm": 4.14, "projViews": null, "projCPM": null, "fanatics": false, "segment": false, "curationIntegration": false, "whg": true, "standard": false, "month": 4}, {"id": 107, "platform": "FB", "brand": "WHG", "caption": "", "content": "WHG", "episode": "CL BB 7", "start": "2026-04-27", "end": "2026-05-01", "startRaw": "4/27", "endRaw": "5/1", "totalBudget": 500.0, "totalSpent": 500.0, "deliveredViews": 117500, "cpm": 4.26, "projViews": null, "projCPM": null, "fanatics": false, "segment": false, "curationIntegration": false, "whg": true, "standard": false, "month": 4}, {"id": 108, "platform": "FB", "brand": "Coors", "caption": "", "content": "Shea Segment #4", "episode": "FB Link", "start": "2026-04-28", "end": "2026-05-03", "startRaw": "4/28", "endRaw": "5/3", "totalBudget": 200.0, "totalSpent": 112.59, "deliveredViews": 33867, "cpm": 3.32, "projViews": 50000, "projCPM": 4.0, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 4}, {"id": 109, "platform": "TT", "brand": "Amazon", "caption": "", "content": "Game Saving Plays (2)", "episode": "TT", "start": "2026-04-29", "end": "2026-05-03", "startRaw": "4/29", "endRaw": "5/3", "totalBudget": 500.0, "totalSpent": 498.21, "deliveredViews": 135050, "cpm": 3.69, "projViews": 100000, "projCPM": 5.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 4}, {"id": 110, "platform": "FB", "brand": "Corona", "caption": "", "content": "Sunday Night Baseball Preview 1", "episode": "FB Link", "start": "2026-04-28", "end": "2026-05-04", "startRaw": "4/28", "endRaw": "5/4", "totalBudget": 2400.0, "totalSpent": 728.69, "deliveredViews": 69085, "cpm": 10.55, "projViews": 600000, "projCPM": 4.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 4}, {"id": 111, "platform": "TT", "brand": "Amazon", "caption": "", "content": "Game Saving Plays (3)", "episode": "TT", "start": "2026-04-30", "end": "2026-05-06", "startRaw": "4/30", "endRaw": "5/6", "totalBudget": 701.0, "totalSpent": 717.59, "deliveredViews": 208300, "cpm": 3.44, "projViews": 140200, "projCPM": 5.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 4}, {"id": 112, "platform": "TT", "brand": "Amazon", "caption": "", "content": "TB Segment Clip", "episode": "TT Link", "start": "2026-05-08", "end": "2026-05-08", "startRaw": "5/8", "endRaw": "5/8", "totalBudget": 74.0, "totalSpent": 74.0, "deliveredViews": 21950, "cpm": 3.37, "projViews": 14800, "projCPM": 5.0, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 5}, {"id": 113, "platform": "TT", "brand": "Amazon", "caption": "", "content": "TB Segment Clip", "episode": "TT Link", "start": "2026-05-05", "end": "2026-05-09", "startRaw": "5/5", "endRaw": "5/9", "totalBudget": 318.0, "totalSpent": 224.36, "deliveredViews": 81807, "cpm": 2.74, "projViews": 63642, "projCPM": 5.0, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 5}, {"id": 114, "platform": "FB", "brand": "Apple TV", "caption": "", "content": "BT Segment Clip", "episode": "FBR Link", "start": "2026-05-05", "end": "2026-05-09", "startRaw": "5/5", "endRaw": "5/9", "totalBudget": 1200.0, "totalSpent": 1198.78, "deliveredViews": 115300, "cpm": 10.4, "projViews": 300000, "projCPM": 4.0, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 5}, {"id": 115, "platform": "FB", "brand": "Coors", "caption": "", "content": "Shea Segment #5", "episode": "FBR", "start": "2026-05-05", "end": "2026-05-10", "startRaw": "5/5", "endRaw": "5/10", "totalBudget": 115.0, "totalSpent": 64.67, "deliveredViews": 18292, "cpm": 3.54, "projViews": 28750, "projCPM": 4.0, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 5}, {"id": 116, "platform": "TT", "brand": "Apple TV", "caption": "", "content": "FNB Deep Dive", "episode": "TT", "start": "2026-05-07", "end": "2026-05-10", "startRaw": "5/7", "endRaw": "5/10", "totalBudget": 832.0, "totalSpent": 828.42, "deliveredViews": 214430, "cpm": 3.86, "projViews": 166400, "projCPM": 5.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 5}, {"id": 117, "platform": "TW", "brand": "Baja Blast", "caption": "", "content": "Best Homers 4", "episode": "X Link", "start": "2026-05-08", "end": "2026-05-10", "startRaw": "5/8", "endRaw": "5/10", "totalBudget": 261.0, "totalSpent": 253.23, "deliveredViews": 175028, "cpm": 1.45, "projViews": 261000, "projCPM": 1.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 5}, {"id": 118, "platform": "FB", "brand": "Amazon", "caption": "", "content": "Game Saving Plays (2)", "episode": "FBR", "start": "2026-05-01", "end": "2026-05-11", "startRaw": "5/1", "endRaw": "5/11", "totalBudget": 3000.0, "totalSpent": 2981.0, "deliveredViews": 846200, "cpm": 3.52, "projViews": 750000, "projCPM": 4.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 5}, {"id": 119, "platform": "TT", "brand": "Apple TV", "caption": "", "content": "FNB Deep Dive", "episode": "TT", "start": "2026-05-11", "end": "2026-05-11", "startRaw": "5/11", "endRaw": "5/11", "totalBudget": 250.0, "totalSpent": 250.0, "deliveredViews": 77510, "cpm": 3.23, "projViews": 62500, "projCPM": 4.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 5}, {"id": 120, "platform": "FB", "brand": "Fanatics", "caption": "", "content": "Shea HR Draft", "episode": "FB Link", "start": "2026-05-06", "end": "2026-05-11", "startRaw": "5/6", "endRaw": "5/11", "totalBudget": 1400.0, "totalSpent": 1399.03, "deliveredViews": 101100, "cpm": 13.84, "projViews": 350000, "projCPM": 4.0, "fanatics": true, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 5}, {"id": 121, "platform": "TT", "brand": "Apple TV", "caption": "", "content": "FNB Deep Dive", "episode": "TT", "start": "2026-05-11", "end": "2026-05-11", "startRaw": "5/11", "endRaw": "5/11", "totalBudget": 250.0, "totalSpent": 250.0, "deliveredViews": 77510, "cpm": 3.23, "projViews": 62500, "projCPM": 4.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 5}, {"id": 122, "platform": "FB", "brand": "Amazon", "caption": "", "content": "Game Saving Plays (3)", "episode": "FBR", "start": "2026-05-05", "end": "2026-05-12", "startRaw": "5/5", "endRaw": "5/12", "totalBudget": 2800.0, "totalSpent": 2622.05, "deliveredViews": 700900, "cpm": 3.74, "projViews": 700000, "projCPM": 4.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 5}, {"id": 123, "platform": "FB", "brand": "Apple TV", "caption": "", "content": "FNB Deep Dive", "episode": "FBR Link", "start": "2026-05-06", "end": "2026-05-13", "startRaw": "5/6", "endRaw": "5/13", "totalBudget": 4000.0, "totalSpent": 2688.95, "deliveredViews": 407700, "cpm": 6.6, "projViews": 1000000, "projCPM": 4.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 5}, {"id": 124, "platform": "TT", "brand": "Fanatics", "caption": "", "content": "Chasing Awards 1", "episode": "TT", "start": "2026-05-09", "end": "2026-05-13", "startRaw": "5/9", "endRaw": "5/13", "totalBudget": 1400.0, "totalSpent": 1390.0, "deliveredViews": 289100, "cpm": 4.81, "projViews": 400000, "projCPM": 3.5, "fanatics": true, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 5}, {"id": 125, "platform": "FB", "brand": "Apple TV", "caption": "", "content": "BT Segment Clip", "episode": "FBR Link", "start": "2026-05-11", "end": "2026-05-14", "startRaw": "5/11", "endRaw": "5/14", "totalBudget": 300.0, "totalSpent": 105.31, "deliveredViews": 13383, "cpm": 7.87, "projViews": 75000, "projCPM": 4.0, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 5}, {"id": 126, "platform": "TW", "brand": "Amazon", "caption": "", "content": "TB Segment Clip", "episode": "X Link", "start": "2026-05-14", "end": "2026-05-14", "startRaw": "5/14", "endRaw": "5/14", "totalBudget": 150.0, "totalSpent": 139.27, "deliveredViews": 80293, "cpm": 1.73, "projViews": 150000, "projCPM": 1.0, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 5}, {"id": 127, "platform": "TW", "brand": "Amazon", "caption": "", "content": "TB Segment Clip", "episode": "", "start": "2026-05-14", "end": "2026-05-14", "startRaw": "5/14", "endRaw": "5/14", "totalBudget": 150.0, "totalSpent": 90.71, "deliveredViews": 51595, "cpm": 1.76, "projViews": 150000, "projCPM": 1.0, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 5}, {"id": 128, "platform": "FB", "brand": "Fanatics", "caption": "", "content": "SNB Preview Graphic", "episode": "", "start": "2026-05-11", "end": "2026-05-15", "startRaw": "5/11", "endRaw": "5/15", "totalBudget": 1000.0, "totalSpent": 999.17, "deliveredViews": 178100, "cpm": 5.61, "projViews": 250000, "projCPM": 4.0, "fanatics": true, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 5}, {"id": 129, "platform": "FB", "brand": "Fanatics", "caption": "", "content": "Swilly's Shockers 1", "episode": "FB Link", "start": "2026-05-09", "end": "2026-05-16", "startRaw": "5/9", "endRaw": "5/16", "totalBudget": 1400.0, "totalSpent": 1398.79, "deliveredViews": 332900, "cpm": 4.2, "projViews": 350000, "projCPM": 4.0, "fanatics": true, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 5}, {"id": 130, "platform": "TT", "brand": "Amazon", "caption": "", "content": "Game Saving Plays (4)", "episode": "TT", "start": "2026-05-12", "end": "2026-05-16", "startRaw": "5/12", "endRaw": "5/16", "totalBudget": 1000.0, "totalSpent": 996.43, "deliveredViews": 249780, "cpm": 3.99, "projViews": 250000, "projCPM": 4.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 5}, {"id": 131, "platform": "FB", "brand": "Apple TV", "caption": "", "content": "FNB Deep Dive", "episode": "FBR Link", "start": "2026-05-16", "end": "2026-05-18", "startRaw": "5/16", "endRaw": "5/18", "totalBudget": 1000.0, "totalSpent": 1000.0, "deliveredViews": 269500, "cpm": 3.71, "projViews": 250000, "projCPM": 4.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 5}, {"id": 132, "platform": "FB", "brand": "Amazon", "caption": "", "content": "BT Segment", "episode": "FBR Link", "start": "2026-05-18", "end": "2026-05-18", "startRaw": "5/18", "endRaw": "5/18", "totalBudget": 145.0, "totalSpent": 144.94, "deliveredViews": 35211, "cpm": 4.12, "projViews": 36250, "projCPM": 4.0, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 5}, {"id": 133, "platform": "FB", "brand": "Amazon", "caption": "", "content": "BT Segment", "episode": "FBR Link", "start": "2026-05-18", "end": "2026-05-18", "startRaw": "5/18", "endRaw": "5/18", "totalBudget": 145.0, "totalSpent": 144.88, "deliveredViews": 30823, "cpm": 4.7, "projViews": 36250, "projCPM": 4.0, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 5}, {"id": 134, "platform": "FB", "brand": "Corona", "caption": "", "content": "Sunday Night Baseball Preview 1", "episode": "FB Link", "start": "2026-05-14", "end": "2026-05-19", "startRaw": "5/14", "endRaw": "5/19", "totalBudget": 800.0, "totalSpent": 25.93, "deliveredViews": 2644, "cpm": 9.81, "projViews": 200000, "projCPM": 4.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 5}, {"id": 135, "platform": "FB", "brand": "National", "caption": "", "content": "Swilly LAX 1", "episode": "FBR Link", "start": "2026-05-14", "end": "2026-05-19", "startRaw": "5/14", "endRaw": "5/19", "totalBudget": 700.0, "totalSpent": 556.82, "deliveredViews": 30061, "cpm": 18.52, "projViews": 175000, "projCPM": 4.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 5}, {"id": 136, "platform": "FB", "brand": "National", "caption": "", "content": "Swilly LAX 1", "episode": "FBR Link", "start": "2026-05-18", "end": "2026-05-19", "startRaw": "5/18", "endRaw": "5/19", "totalBudget": 1000.0, "totalSpent": 469.01, "deliveredViews": 29433, "cpm": 15.93, "projViews": 250000, "projCPM": 4.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 5}, {"id": 137, "platform": "TW", "brand": "Amazon", "caption": "", "content": "TB Segment Clip", "episode": "X Link", "start": "2026-05-19", "end": "2026-05-19", "startRaw": "5/19", "endRaw": "5/19", "totalBudget": 45.0, "totalSpent": 45.16, "deliveredViews": 19849, "cpm": 2.28, "projViews": 45000, "projCPM": 1.0, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 5}, {"id": 138, "platform": "TW", "brand": "Corona", "caption": "", "content": "Sunday Night Baseball Preview 4", "episode": "TW Link", "start": "2026-05-18", "end": "2026-05-21", "startRaw": "5/18", "endRaw": "5/21", "totalBudget": 916.61, "totalSpent": 916.61, "deliveredViews": 272604, "cpm": 3.36, "projViews": 916610, "projCPM": 1.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 5}, {"id": 139, "platform": "FB", "brand": "Apple TV", "caption": "", "content": "BT Segment", "episode": "FBR Link", "start": "2026-05-20", "end": "2026-05-22", "startRaw": "5/20", "endRaw": "5/22", "totalBudget": 920.0, "totalSpent": 915.42, "deliveredViews": 233800, "cpm": 3.92, "projViews": 230000, "projCPM": 4.0, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 5}, {"id": 140, "platform": "FB", "brand": "National", "caption": "", "content": "Swilly LAX 1", "episode": "FBR Link", "start": "2026-05-20", "end": "2026-05-22", "startRaw": "5/20", "endRaw": "5/22", "totalBudget": 1500.0, "totalSpent": 87.65, "deliveredViews": 6035, "cpm": 14.52, "projViews": 375000, "projCPM": 4.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 5}, {"id": 141, "platform": "TW", "brand": "T-Mobile", "caption": "", "content": "Boone Segment 2", "episode": "X Link", "start": "2026-05-21", "end": "2026-05-22", "startRaw": "5/21", "endRaw": "5/22", "totalBudget": 100.0, "totalSpent": 25.32, "deliveredViews": 196509, "cpm": 0.13, "projViews": 40000, "projCPM": 2.5, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 5}, {"id": 142, "platform": "FB", "brand": "National", "caption": "", "content": "Swilly LAX 2", "episode": "FBR Link", "start": "2026-05-19", "end": "2026-05-24", "startRaw": "5/19", "endRaw": "5/24", "totalBudget": 2400.0, "totalSpent": 2387.73, "deliveredViews": 643700, "cpm": 3.71, "projViews": 600000, "projCPM": 4.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 5}, {"id": 143, "platform": "TW", "brand": "T-Mobile", "caption": "", "content": "Boone Segment 1", "episode": "X Link", "start": "2026-05-21", "end": "2026-05-24", "startRaw": "5/21", "endRaw": "5/24", "totalBudget": 750.0, "totalSpent": 126.34, "deliveredViews": 579373, "cpm": 0.22, "projViews": 300000, "projCPM": 2.5, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 5}, {"id": 144, "platform": "FB", "brand": "Amazon", "caption": "", "content": "Game Saving Plays (4)", "episode": "FBR", "start": "2026-05-18", "end": "2026-05-25", "startRaw": "5/18", "endRaw": "5/25", "totalBudget": 2198.0, "totalSpent": 2197.2, "deliveredViews": 564200, "cpm": 3.89, "projViews": 549500, "projCPM": 4.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 5}, {"id": 145, "platform": "FB", "brand": "Corona", "caption": "", "content": "Sunday Night Baseball Preview 1", "episode": "FB Link", "start": "2026-05-20", "end": "2026-05-25", "startRaw": "5/20", "endRaw": "5/25", "totalBudget": 2500.0, "totalSpent": 148.36, "deliveredViews": 18791, "cpm": 7.9, "projViews": 625000, "projCPM": 4.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 5}, {"id": 146, "platform": "IG", "brand": "Corona", "caption": "", "content": "Sunday Night Baseball Preview 1", "episode": "", "start": "2026-05-20", "end": "2026-05-25", "startRaw": "5/20", "endRaw": "5/25", "totalBudget": 2300.0, "totalSpent": 2733.77, "deliveredViews": 678400, "cpm": 4.03, "projViews": 575000, "projCPM": 4.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 5}, {"id": 147, "platform": "FB", "brand": "Fanatics", "caption": "", "content": "Swilly's Shockers 2", "episode": "FB Link", "start": "2026-05-21", "end": "2026-05-26", "startRaw": "5/21", "endRaw": "5/26", "totalBudget": 1200.0, "totalSpent": 1195.46, "deliveredViews": 262400, "cpm": 4.56, "projViews": 300000, "projCPM": 4.0, "fanatics": true, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 5}, {"id": 148, "platform": "FB", "brand": "Fanatics", "caption": "", "content": "TY K Race 1", "episode": "FB Link", "start": "2026-05-21", "end": "2026-05-26", "startRaw": "5/21", "endRaw": "5/26", "totalBudget": 1500.0, "totalSpent": 1497.09, "deliveredViews": 408300, "cpm": 3.67, "projViews": 375000, "projCPM": 4.0, "fanatics": true, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 5}, {"id": 149, "platform": "FB", "brand": "Fanatics", "caption": "", "content": "TY HR Draft 1", "episode": "FB Link", "start": "2026-05-21", "end": "2026-05-26", "startRaw": "5/21", "endRaw": "5/26", "totalBudget": 1700.0, "totalSpent": 1696.57, "deliveredViews": 350000, "cpm": 4.85, "projViews": 425000, "projCPM": 4.0, "fanatics": true, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 5}, {"id": 150, "platform": "TT", "brand": "Fanatics", "caption": "", "content": "Chasing Awards 2", "episode": "TT Link", "start": "2026-05-21", "end": "2026-05-27", "startRaw": "5/21", "endRaw": "5/27", "totalBudget": 1750.0, "totalSpent": 1750.0, "deliveredViews": 347600, "cpm": 5.03, "projViews": 437500, "projCPM": 4.0, "fanatics": true, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 5}, {"id": 151, "platform": "FB", "brand": "Corona", "caption": "", "content": "Sunday Night Baseball Preview 2", "episode": "FB Link", "start": "2026-05-22", "end": "2026-05-29", "startRaw": "5/22", "endRaw": "5/29", "totalBudget": 2800.0, "totalSpent": 2791.31, "deliveredViews": 332500, "cpm": 8.39, "projViews": 700000, "projCPM": 4.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 5}, {"id": 152, "platform": "FB", "brand": "National", "caption": "", "content": "Swilly LAX 3", "episode": "FBR Link", "start": "2026-05-22", "end": "2026-05-30", "startRaw": "5/22", "endRaw": "5/30", "totalBudget": 4000.0, "totalSpent": 3996.82, "deliveredViews": 802800, "cpm": 4.98, "projViews": 1000000, "projCPM": 4.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 5}, {"id": 153, "platform": "TW", "brand": "Baja Blast", "caption": "", "content": "Best Homers 5", "episode": "X Link", "start": "2026-05-22", "end": "2026-05-23", "startRaw": "5/22", "endRaw": "5/23", "totalBudget": 275.0, "totalSpent": 269.97, "deliveredViews": 290598, "cpm": 0.93, "projViews": 275000, "projCPM": 1.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 5}, {"id": 154, "platform": "TW", "brand": "Corona", "caption": "", "content": "Sunday Night Baseball Preview 4", "episode": "TW Link", "start": "2026-05-22", "end": "2026-05-24", "startRaw": "5/22", "endRaw": "5/24", "totalBudget": 1000.0, "totalSpent": 1000.0, "deliveredViews": 254837, "cpm": 3.92, "projViews": 400000, "projCPM": 2.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 5}, {"id": 155, "platform": "FB", "brand": "Amazon", "caption": "", "content": "Game Saving Plays (5)", "episode": "FBR", "start": "2026-05-22", "end": "2026-05-26", "startRaw": "5/22", "endRaw": "5/26", "totalBudget": 2250.0, "totalSpent": 2245.24, "deliveredViews": 547100, "cpm": 4.1, "projViews": 562500, "projCPM": 4.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 5}, {"id": 156, "platform": "TT", "brand": "Amazon", "caption": "", "content": "Game Saving Plays (5)", "episode": "TT", "start": "2026-05-22", "end": "2026-05-25", "startRaw": "5/22", "endRaw": "5/25", "totalBudget": 1000.0, "totalSpent": 1000.0, "deliveredViews": 257430, "cpm": 3.88, "projViews": 250000, "projCPM": 4.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 5}, {"id": 157, "platform": "FB", "brand": "Amazon", "caption": "", "content": "Game Saving Plays (6)", "episode": "FBR", "start": "2026-05-22", "end": "2026-05-26", "startRaw": "5/22", "endRaw": "5/26", "totalBudget": 2250.0, "totalSpent": 2247.98, "deliveredViews": 506000, "cpm": 4.44, "projViews": 562500, "projCPM": 4.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 5}, {"id": 158, "platform": "TT", "brand": "Amazon", "caption": "", "content": "Game Saving Plays (6)", "episode": "TT", "start": "2026-05-22", "end": "2026-05-25", "startRaw": "5/22", "endRaw": "5/25", "totalBudget": 1000.0, "totalSpent": 996.37, "deliveredViews": 199590, "cpm": 4.99, "projViews": 250000, "projCPM": 4.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 5}, {"id": 159, "platform": "FB", "brand": "Coors", "caption": "", "content": "Shea Segment #6", "episode": "FB Link", "start": "2026-05-26", "end": "2026-05-30", "startRaw": "5/26", "endRaw": "5/30", "totalBudget": 300.0, "totalSpent": 299.64, "deliveredViews": 65755, "cpm": 4.56, "projViews": 75000, "projCPM": 4.0, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 5}, {"id": 160, "platform": "FB", "brand": "Coors", "caption": "", "content": "Shea Segment #7", "episode": "FB Link", "start": "2026-05-26", "end": "2026-05-30", "startRaw": "5/26", "endRaw": "5/30", "totalBudget": 250.0, "totalSpent": 110.35, "deliveredViews": 25124, "cpm": 4.39, "projViews": 62500, "projCPM": 4.0, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 5}, {"id": 161, "platform": "TW", "brand": "Amazon", "caption": "", "content": "TB Segment Clip", "episode": "X Link", "start": "2026-05-26", "end": "2026-05-26", "startRaw": "5/26", "endRaw": "5/26", "totalBudget": 145.0, "totalSpent": 144.31, "deliveredViews": 87257, "cpm": 1.65, "projViews": 72500, "projCPM": 2.0, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 5}, {"id": 162, "platform": "FB", "brand": "National", "caption": "", "content": "Swilly LAX 2", "episode": "FBR Link", "start": "2026-05-27", "end": "2026-05-29", "startRaw": "5/27", "endRaw": "5/29", "totalBudget": 1000.0, "totalSpent": 1000.0, "deliveredViews": 260800, "cpm": 3.83, "projViews": 250000, "projCPM": 4.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 5}, {"id": 163, "platform": "TW", "brand": "Corona", "caption": "", "content": "Sunday Night Baseball Preview 4", "episode": "TW Link", "start": "2026-05-27", "end": "2026-05-30", "startRaw": "5/27", "endRaw": "5/30", "totalBudget": 1000.0, "totalSpent": 1000.07, "deliveredViews": 371442, "cpm": 2.69, "projViews": 400000, "projCPM": 2.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 5}, {"id": 164, "platform": "FB", "brand": "Amazon", "caption": "", "content": "Game Saving Plays (7)", "episode": "FBR", "start": "2026-05-27", "end": "2026-05-30", "startRaw": "5/27", "endRaw": "5/30", "totalBudget": 2000.0, "totalSpent": 1994.54, "deliveredViews": 470900, "cpm": 4.24, "projViews": 494173, "projCPM": 4.05, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 5}, {"id": 165, "platform": "TT", "brand": "Amazon", "caption": "", "content": "Game Saving Plays (7)", "episode": "TT", "start": "2026-05-27", "end": "2026-05-30", "startRaw": "5/27", "endRaw": "5/30", "totalBudget": 1200.0, "totalSpent": 1200.0, "deliveredViews": 278390, "cpm": 4.31, "projViews": 347726, "projCPM": 3.45, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 5}, {"id": 166, "platform": "FB", "brand": "Amazon", "caption": "", "content": "Game Saving Plays (8)", "episode": "FBR", "start": "2026-05-28", "end": "2026-05-31", "startRaw": "5/28", "endRaw": "5/31", "totalBudget": 2000.0, "totalSpent": 1897.31, "deliveredViews": 511900, "cpm": 3.71, "projViews": 485767, "projCPM": 4.12, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 5}, {"id": 167, "platform": "TT", "brand": "Amazon", "caption": "", "content": "Game Saving Plays (8)", "episode": "TT", "start": "2026-05-28", "end": "2026-05-31", "startRaw": "5/28", "endRaw": "5/31", "totalBudget": 1200.0, "totalSpent": 1058.04, "deliveredViews": 314701, "cpm": 3.36, "projViews": 300000, "projCPM": 4.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 5}, {"id": 168, "platform": "FB", "brand": "Amazon", "caption": "", "content": "Game Saving Plays (5)", "episode": "FBR", "start": "2026-05-28", "end": "2026-05-31", "startRaw": "5/28", "endRaw": "5/31", "totalBudget": 2000.0, "totalSpent": 1895.08, "deliveredViews": null, "cpm": 4.29, "projViews": 436063, "projCPM": 4.59, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 5}, {"id": 169, "platform": "FB", "brand": "WHG", "caption": "", "content": "WHG", "episode": "CL BIP 1", "start": "2026-05-29", "end": "2026-06-03", "startRaw": "5/29", "endRaw": "6/3", "totalBudget": 500.0, "totalSpent": 499.73, "deliveredViews": 125700, "cpm": 3.98, "projViews": null, "projCPM": null, "fanatics": false, "segment": false, "curationIntegration": false, "whg": true, "standard": false, "month": 5}, {"id": 170, "platform": "FB", "brand": "WHG", "caption": "", "content": "WHG", "episode": "CL BIP 2", "start": "2026-06-04", "end": "2026-06-09", "startRaw": "6/4", "endRaw": "6/9", "totalBudget": 500.0, "totalSpent": 498.88, "deliveredViews": 111300, "cpm": 4.48, "projViews": null, "projCPM": null, "fanatics": false, "segment": false, "curationIntegration": false, "whg": true, "standard": false, "month": 6}, {"id": 171, "platform": "FB", "brand": "WHG", "caption": "", "content": "WHG", "episode": "CL BIP 3", "start": "2026-06-04", "end": "2026-06-09", "startRaw": "6/4", "endRaw": "6/9", "totalBudget": 500.0, "totalSpent": 497.97, "deliveredViews": 100900, "cpm": 4.94, "projViews": null, "projCPM": null, "fanatics": false, "segment": false, "curationIntegration": false, "whg": true, "standard": false, "month": 6}, {"id": 172, "platform": "FB", "brand": "WHG", "caption": "", "content": "WHG", "episode": "CL BIP 4", "start": "2026-06-04", "end": "2026-06-09", "startRaw": "6/4", "endRaw": "6/9", "totalBudget": 500.0, "totalSpent": 496.39, "deliveredViews": 94369, "cpm": 5.26, "projViews": null, "projCPM": null, "fanatics": false, "segment": false, "curationIntegration": false, "whg": true, "standard": false, "month": 6}, {"id": 173, "platform": "TW", "brand": "National", "caption": "", "content": "Joez Reel 1", "episode": "X Link", "start": "2026-05-29", "end": "2026-05-30", "startRaw": "5/29", "endRaw": "5/30", "totalBudget": 300.0, "totalSpent": 287.11, "deliveredViews": 174988, "cpm": 1.64, "projViews": 200000, "projCPM": 1.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 5}, {"id": 174, "platform": "TW", "brand": "Apple TV", "caption": "", "content": "FNB Deep Dive", "episode": "", "start": "2026-05-29", "end": "2026-05-30", "startRaw": "5/29", "endRaw": "5/30", "totalBudget": 300.0, "totalSpent": 284.53, "deliveredViews": 148077, "cpm": 1.92, "projViews": 200000, "projCPM": 1.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 5}, {"id": 175, "platform": "TW", "brand": "Apple TV", "caption": "", "content": "FNB Deep Dive", "episode": "", "start": "2026-05-31", "end": "2026-06-01", "startRaw": "5/31", "endRaw": "6/1", "totalBudget": 300.0, "totalSpent": 292.8, "deliveredViews": 149404, "cpm": 1.96, "projViews": 200000, "projCPM": 1.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 5}, {"id": 176, "platform": "FB", "brand": "Apple TV", "caption": "", "content": "FNB Deep Dive", "episode": "", "start": "2026-05-31", "end": "2026-06-04", "startRaw": "5/31", "endRaw": "6/4", "totalBudget": 2000.0, "totalSpent": 1462.42, "deliveredViews": 304900, "cpm": 4.8, "projViews": 500000, "projCPM": 4.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 5}, {"id": 177, "platform": "FB", "brand": "Corona", "caption": "", "content": "Sunday Night Baseball Preview 3", "episode": "", "start": "2026-06-02", "end": "2026-06-06", "startRaw": "6/2", "endRaw": "6/6", "totalBudget": 2000.0, "totalSpent": 1998.98, "deliveredViews": 203500, "cpm": 9.82, "projViews": 500000, "projCPM": 4.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 6}, {"id": 178, "platform": "TW", "brand": "Apple TV", "caption": "", "content": "FNB Deep Dive", "episode": "", "start": "2026-06-02", "end": "2026-06-03", "startRaw": "6/2", "endRaw": "6/3", "totalBudget": 300.0, "totalSpent": 300.0, "deliveredViews": 127760, "cpm": 2.35, "projViews": 200000, "projCPM": 1.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 6}, {"id": 179, "platform": "TW", "brand": "National", "caption": "", "content": "Joez Reel 2", "episode": "X Link", "start": "2026-06-02", "end": "2026-06-03", "startRaw": "6/2", "endRaw": "6/3", "totalBudget": 400.0, "totalSpent": 400.22, "deliveredViews": 199182, "cpm": 2.01, "projViews": 266667, "projCPM": 1.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 6}, {"id": 180, "platform": "TW", "brand": "National", "caption": "", "content": "TB Segment 1", "episode": "X Link", "start": "2026-06-05", "end": "2026-06-06", "startRaw": "6/5", "endRaw": "6/6", "totalBudget": 400.0, "totalSpent": 385.84, "deliveredViews": 120379, "cpm": 3.21, "projViews": 228571, "projCPM": 1.75, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 6}, {"id": 181, "platform": "TW", "brand": "National", "caption": "", "content": "Joez Reel 3", "episode": "X Link", "start": "2026-06-05", "end": "2026-06-06", "startRaw": "6/5", "endRaw": "6/6", "totalBudget": 400.0, "totalSpent": 186.56, "deliveredViews": 109527, "cpm": 1.7, "projViews": 228571, "projCPM": 1.75, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 6}, {"id": 182, "platform": "TW", "brand": "National", "caption": "", "content": "Joez Reel 4", "episode": "X Link", "start": "2026-06-09", "end": "2026-06-10", "startRaw": "6/9", "endRaw": "6/10", "totalBudget": 300.0, "totalSpent": 297.69, "deliveredViews": 109515, "cpm": 2.72, "projViews": 171429, "projCPM": 1.75, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 6}, {"id": 183, "platform": "TW", "brand": "National", "caption": "", "content": "TB Segment 1 Pt 2", "episode": "X Link", "start": "2026-06-09", "end": "2026-06-10", "startRaw": "6/9", "endRaw": "6/10", "totalBudget": 300.0, "totalSpent": 297.33, "deliveredViews": 96640, "cpm": 3.08, "projViews": 171429, "projCPM": 1.75, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 6}, {"id": 184, "platform": "FB", "brand": "Corona", "caption": "", "content": "Sunday Night Baseball Preview 3", "episode": "", "start": "2026-06-09", "end": "2026-06-09", "startRaw": "6/9", "endRaw": "6/9", "totalBudget": 500.0, "totalSpent": 98.0, "deliveredViews": 7500, "cpm": 13.07, "projViews": 125000, "projCPM": 4.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 6}, {"id": 185, "platform": "TW", "brand": "National", "caption": "", "content": "TB Segment 2 Pt 1", "episode": "X Link", "start": "2026-06-10", "end": "2026-06-11", "startRaw": "6/10", "endRaw": "6/11", "totalBudget": 300.0, "totalSpent": 295.39, "deliveredViews": 71316, "cpm": 4.14, "projViews": 171429, "projCPM": 1.75, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 6}, {"id": 186, "platform": "FB", "brand": "Apple TV", "caption": "", "content": "BT Segment", "episode": "FBR Link", "start": "2026-06-10", "end": "2026-06-14", "startRaw": "6/10", "endRaw": "6/14", "totalBudget": 1000.0, "totalSpent": 997.51, "deliveredViews": 110900, "cpm": 8.99, "projViews": 250000, "projCPM": 4.0, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 6}, {"id": 187, "platform": "FB", "brand": "WHG", "caption": "", "content": "WHG", "episode": "CL BIP 5", "start": "2026-06-12", "end": "2026-06-17", "startRaw": "6/12", "endRaw": "6/17", "totalBudget": 500.0, "totalSpent": 498.58, "deliveredViews": 71412, "cpm": null, "projViews": null, "projCPM": null, "fanatics": false, "segment": false, "curationIntegration": false, "whg": true, "standard": false, "month": 6}, {"id": 188, "platform": "FB", "brand": "WHG", "caption": "", "content": "WHG", "episode": "CL BIP 6", "start": "2026-06-12", "end": "2026-06-17", "startRaw": "6/12", "endRaw": "6/17", "totalBudget": 500.0, "totalSpent": 499.37, "deliveredViews": 111800, "cpm": null, "projViews": null, "projCPM": null, "fanatics": false, "segment": false, "curationIntegration": false, "whg": true, "standard": false, "month": 6}, {"id": 189, "platform": "FB", "brand": "WHG", "caption": "", "content": "WHG", "episode": "CL BIP 8", "start": "2026-06-12", "end": "2026-06-17", "startRaw": "6/12", "endRaw": "6/17", "totalBudget": 500.0, "totalSpent": 498.98, "deliveredViews": 110200, "cpm": null, "projViews": null, "projCPM": null, "fanatics": false, "segment": false, "curationIntegration": false, "whg": true, "standard": false, "month": 6}, {"id": 190, "platform": "FB", "brand": "Apple TV", "caption": "", "content": "FNB Deep Dive", "episode": "", "start": "2026-06-12", "end": "2026-06-19", "startRaw": "6/12", "endRaw": "6/19", "totalBudget": 3500.0, "totalSpent": 1384.0, "deliveredViews": 139600, "cpm": 9.91, "projViews": 875000, "projCPM": 4.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 6}, {"id": 191, "platform": "FB", "brand": "Fanatics", "caption": "", "content": "Swilly's Shockers 3", "episode": "FB Link", "start": "2026-06-13", "end": "2026-06-20", "startRaw": "6/13", "endRaw": "6/20", "totalBudget": 1200.0, "totalSpent": 1335.0, "deliveredViews": 270400, "cpm": 4.94, "projViews": 300000, "projCPM": 4.0, "fanatics": true, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 6}, {"id": 192, "platform": "FB", "brand": "Fanatics", "caption": "", "content": "Swilly's Shockers 4", "episode": "FB Link", "start": "2026-06-13", "end": "2026-06-20", "startRaw": "6/13", "endRaw": "6/20", "totalBudget": 1200.0, "totalSpent": 1340.0, "deliveredViews": 273500, "cpm": 4.9, "projViews": 300000, "projCPM": 4.0, "fanatics": true, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 6}, {"id": 193, "platform": "FB", "brand": "Fanatics", "caption": "", "content": "TY HR Draft 2", "episode": "", "start": "2026-06-13", "end": "2026-06-20", "startRaw": "6/13", "endRaw": "6/20", "totalBudget": 1700.0, "totalSpent": 1641.0, "deliveredViews": 149400, "cpm": 10.98, "projViews": 425000, "projCPM": 4.0, "fanatics": true, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 6}, {"id": 195, "platform": "TT", "brand": "Apple TV", "caption": "", "content": "FNB Deep Dive", "episode": "TT Link", "start": "2026-06-15", "end": "2026-06-19", "startRaw": "6/15", "endRaw": "6/19", "totalBudget": 1200.0, "totalSpent": 1160.0, "deliveredViews": 230730, "cpm": 5.03, "projViews": 300000, "projCPM": 4.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 6}, {"id": 196, "platform": "TW", "brand": "National", "caption": "", "content": "Joez Reel 5", "episode": "X Link", "start": "2026-06-15", "end": "2026-06-16", "startRaw": "6/15", "endRaw": "6/16", "totalBudget": 300.0, "totalSpent": 300.0, "deliveredViews": 96562, "cpm": 3.11, "projViews": 171429, "projCPM": 1.75, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 6}, {"id": 210, "platform": "TW", "brand": "National", "caption": "", "content": "TB Segment 2 Pt 2", "episode": "X Link", "start": "2026-06-17", "end": "2026-06-18", "startRaw": "6/17", "endRaw": "6/18", "totalBudget": 300.0, "totalSpent": 175.0, "deliveredViews": 38297, "cpm": 4.57, "projViews": 171429, "projCPM": 1.75, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 6}, {"id": 197, "platform": "TW", "brand": "National", "caption": "", "content": "TB Segment 1 Pt 3", "episode": "X Link", "start": "2026-06-15", "end": "2026-06-16", "startRaw": "6/15", "endRaw": "6/16", "totalBudget": 300.0, "totalSpent": 150.0, "deliveredViews": 32290, "cpm": 4.65, "projViews": 171429, "projCPM": 1.75, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 6}, {"id": 198, "platform": "TW", "brand": "Fanatics", "caption": "", "content": "Chasing Awards 3", "episode": "", "start": "2026-06-15", "end": "2026-06-16", "startRaw": "6/15", "endRaw": "6/16", "totalBudget": 300.0, "totalSpent": 300.0, "deliveredViews": 87129, "cpm": 3.44, "projViews": 171429, "projCPM": 1.75, "fanatics": true, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 6}, {"id": 199, "platform": "TW", "brand": "National", "caption": "", "content": "TB Segment 1 Pt 4", "episode": "X Link", "start": "2026-06-17", "end": "2026-06-18", "startRaw": "6/17", "endRaw": "6/18", "totalBudget": 300.0, "totalSpent": 300.0, "deliveredViews": 92362, "cpm": 3.25, "projViews": 171429, "projCPM": 1.75, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 6}, {"id": 200, "platform": "TW", "brand": "National", "caption": "", "content": "TB Segment 2 Pt 3", "episode": "X Link", "start": "2026-06-17", "end": "2026-06-18", "startRaw": "6/17", "endRaw": "6/18", "totalBudget": 350.0, "totalSpent": 350.0, "deliveredViews": 94329, "cpm": 3.71, "projViews": 200000, "projCPM": 1.75, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 6}, {"id": 201, "platform": "FB", "brand": "Coors", "caption": "", "content": "Shea Clip", "episode": "", "start": "2026-06-19", "end": "2026-06-23", "startRaw": "6/19", "endRaw": "6/23", "totalBudget": 280.0, "totalSpent": 278.26, "deliveredViews": 66845, "cpm": 4.16, "projViews": 70000, "projCPM": 4.0, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 6}, {"id": 202, "platform": "FB", "brand": "Coors", "caption": "", "content": "Shea Clip", "episode": "", "start": "2026-06-19", "end": "2026-06-23", "startRaw": "6/19", "endRaw": "6/23", "totalBudget": 280.0, "totalSpent": 278.46, "deliveredViews": 59472, "cpm": 4.68, "projViews": 70000, "projCPM": 4.0, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 6}, {"id": 203, "platform": "FB", "brand": "Coors", "caption": "", "content": "Shea Clip", "episode": "", "start": "2026-06-19", "end": "2026-06-23", "startRaw": "6/19", "endRaw": "6/23", "totalBudget": 280.0, "totalSpent": 277.78, "deliveredViews": 63652, "cpm": 4.36, "projViews": 70000, "projCPM": 4.0, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 6}, {"id": 204, "platform": "TW", "brand": "National", "caption": "", "content": "TB Segment 1 Pt 5", "episode": "", "start": "2026-06-19", "end": "2026-06-20", "startRaw": "6/19", "endRaw": "6/20", "totalBudget": 300.0, "totalSpent": 300.0, "deliveredViews": 99389, "cpm": 3.02, "projViews": 171429, "projCPM": 1.75, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 6}, {"id": 205, "platform": "TW", "brand": "National", "caption": "", "content": "TB Segment 2 Pt 4", "episode": "", "start": "2026-06-19", "end": "2026-06-20", "startRaw": "6/19", "endRaw": "6/20", "totalBudget": 300.0, "totalSpent": 300.0, "deliveredViews": 102531, "cpm": 2.93, "projViews": 171429, "projCPM": 1.75, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 6}, {"id": 206, "platform": "FB", "brand": "Apple TV", "caption": "", "content": "BT Segment", "episode": "FBR Link", "start": "2026-06-19", "end": "2026-06-24", "startRaw": "6/19", "endRaw": "6/24", "totalBudget": 750.0, "totalSpent": 748.6, "deliveredViews": 162100, "cpm": 4.62, "projViews": 187500, "projCPM": 4.0, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 6}, {"id": 195, "platform": "TT", "brand": "Apple TV", "caption": "", "content": "FNB Deep Dive", "episode": "TT Link", "start": "2026-06-20", "end": "2026-06-23", "startRaw": "6/20", "endRaw": "6/23", "totalBudget": 1200.0, "totalSpent": 1200.0, "deliveredViews": 229700, "cpm": 5.22, "projViews": 300000, "projCPM": 4.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 6}, {"id": 213, "platform": "TW", "brand": "National", "caption": "", "content": "TB Segment 1 Pt 6", "episode": "", "start": "2026-06-24", "end": "2026-06-27", "startRaw": "6/24", "endRaw": "6/27", "totalBudget": 1800.0, "totalSpent": 1800.07, "deliveredViews": 442917, "cpm": 4.06, "projViews": 666667, "projCPM": 2.7, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 6}, {"id": 214, "platform": "TW", "brand": "National", "caption": "", "content": "TB Segment 2 Pt 5", "episode": "", "start": "2026-06-24", "end": "2026-06-27", "startRaw": "6/24", "endRaw": "6/27", "totalBudget": 1800.0, "totalSpent": 1799.84, "deliveredViews": 389951, "cpm": 4.62, "projViews": 666667, "projCPM": 2.7, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 6}, {"id": 207, "platform": "FB", "brand": "Fanatics", "caption": "", "content": "TY K Race", "episode": "FB Link", "start": "2026-06-21", "end": "2026-06-28", "startRaw": "6/21", "endRaw": "6/28", "totalBudget": 1701.0, "totalSpent": 1121.6, "deliveredViews": 326500, "cpm": 3.44, "projViews": 425250, "projCPM": 4.0, "fanatics": true, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 6}, {"id": 208, "platform": "FB", "brand": "Fanatics", "caption": "", "content": "Homer Race", "episode": "", "start": "2026-06-21", "end": "2026-06-28", "startRaw": "6/21", "endRaw": "6/28", "totalBudget": 1701.0, "totalSpent": 1119.77, "deliveredViews": 127700, "cpm": 8.77, "projViews": 425250, "projCPM": 4.0, "fanatics": true, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 6}, {"id": 209, "platform": "TT", "brand": "Apple TV", "caption": "", "content": "FNB Deep Dive", "episode": "TT Link", "start": "2026-06-25", "end": "2026-06-26", "startRaw": "6/25", "endRaw": "6/26", "totalBudget": 770.0, "totalSpent": 770.0, "deliveredViews": 145330, "cpm": 5.3, "projViews": 192500, "projCPM": 4.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 6}, {"id": 211, "platform": "FB", "brand": "Fanatics", "caption": "", "content": "TY K Race", "episode": "FB Link", "start": "2026-06-26", "end": "2026-07-03", "startRaw": "6/26", "endRaw": "7/3", "totalBudget": 1701.0, "totalSpent": 171.0, "deliveredViews": 38484, "cpm": 4.44, "projViews": 425250, "projCPM": 4.0, "fanatics": true, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 6}, {"id": 212, "platform": "FB", "brand": "Apple TV", "caption": "", "content": "BT Segment", "episode": "FBR Link", "start": "2026-06-26", "end": "2026-07-01", "startRaw": "6/26", "endRaw": "7/1", "totalBudget": 550.0, "totalSpent": 480.0, "deliveredViews": 98713, "cpm": 4.86, "projViews": 137500, "projCPM": 4.0, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 6}, {"id": 215, "platform": "TW", "brand": "National", "caption": "", "content": "JMB Clip 1", "episode": "X Link", "start": "2026-07-01", "end": "2026-07-02", "startRaw": "7/1", "endRaw": "7/2", "totalBudget": 300.0, "totalSpent": 299.86, "deliveredViews": 187712, "cpm": 1.6, "projViews": 111111, "projCPM": 2.7, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 7}, {"id": 216, "platform": "TW", "brand": "National", "caption": "", "content": "JMB Clip 2", "episode": "X Link", "start": "2026-07-01", "end": "2026-07-02", "startRaw": "7/1", "endRaw": "7/2", "totalBudget": 300.0, "totalSpent": 299.5, "deliveredViews": 167762, "cpm": 1.79, "projViews": 111111, "projCPM": 2.7, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 7}, {"id": 217, "platform": "TW", "brand": "National", "caption": "", "content": "JMB Clip 3", "episode": "X Link", "start": "2026-07-01", "end": "2026-07-02", "startRaw": "7/1", "endRaw": "7/2", "totalBudget": 300.0, "totalSpent": 299.98, "deliveredViews": 189123, "cpm": 1.59, "projViews": 111111, "projCPM": 2.7, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 7}, {"id": 218, "platform": "TW", "brand": "National", "caption": "", "content": "JMB Clip 4", "episode": "X Link", "start": "2026-07-01", "end": "2026-07-02", "startRaw": "7/1", "endRaw": "7/2", "totalBudget": 300.0, "totalSpent": 299.99, "deliveredViews": 172669, "cpm": 1.74, "projViews": 111111, "projCPM": 2.7, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 7}, {"id": 219, "platform": "TT", "brand": "Apple TV", "caption": "", "content": "FNB Deep Dive", "episode": "TT Link", "start": "2026-07-01", "end": "2026-07-04", "startRaw": "7/1", "endRaw": "7/4", "totalBudget": 1000.0, "totalSpent": 1000.0, "deliveredViews": 435019, "cpm": 2.3, "projViews": 250000, "projCPM": 4.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 220, "platform": "TT", "brand": "Apple TV", "caption": "", "content": "FNB Deep Dive", "episode": "TT Link", "start": "2026-07-02", "end": "2026-07-03", "startRaw": "7/2", "endRaw": "7/3", "totalBudget": 450.0, "totalSpent": 450.0, "deliveredViews": 199490, "cpm": 2.26, "projViews": 112500, "projCPM": 4.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 221, "platform": "TW", "brand": "Baja Blast", "caption": "", "content": "Best Homers 6", "episode": "X Link", "start": "2026-07-02", "end": "2026-07-02", "startRaw": "7/2", "endRaw": "7/2", "totalBudget": 150.0, "totalSpent": 150.02, "deliveredViews": 115536, "cpm": 1.3, "projViews": 55556, "projCPM": 2.7, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 222, "platform": "TT", "brand": "Fanatics", "caption": "", "content": "Chasing Awards 4", "episode": "TT Link", "start": "2026-07-02", "end": "2026-07-05", "startRaw": "7/2", "endRaw": "7/5", "totalBudget": null, "totalSpent": null, "deliveredViews": null, "cpm": null, "projViews": 0, "projCPM": 4.0, "fanatics": true, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 224, "platform": "TW", "brand": "National", "caption": "", "content": "JMB Clip 1", "episode": "X Link", "start": "2026-07-06", "end": "2026-07-07", "startRaw": "7/6", "endRaw": "7/7", "totalBudget": 300.0, "totalSpent": 300.01, "deliveredViews": 165469, "cpm": 1.81, "projViews": 111111, "projCPM": 2.7, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 7}, {"id": 225, "platform": "TW", "brand": "National", "caption": "", "content": "JMB Clip 2", "episode": "X Link", "start": "2026-07-06", "end": "2026-07-07", "startRaw": "7/6", "endRaw": "7/7", "totalBudget": 300.0, "totalSpent": 300.0, "deliveredViews": 159596, "cpm": 1.88, "projViews": 111111, "projCPM": 2.7, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 7}, {"id": 226, "platform": "TW", "brand": "National", "caption": "", "content": "JMB Clip 3", "episode": "X Link", "start": "2026-07-06", "end": "2026-07-07", "startRaw": "7/6", "endRaw": "7/7", "totalBudget": 300.0, "totalSpent": 300.01, "deliveredViews": 169041, "cpm": 1.77, "projViews": 111111, "projCPM": 2.7, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 7}, {"id": 227, "platform": "TW", "brand": "National", "caption": "", "content": "JMB Clip 4", "episode": "X Link", "start": "2026-07-06", "end": "2026-07-07", "startRaw": "7/6", "endRaw": "7/7", "totalBudget": 300.0, "totalSpent": 300.01, "deliveredViews": 144544, "cpm": 2.08, "projViews": 111111, "projCPM": 2.7, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 7}, {"id": 223, "platform": "TT", "brand": "Apple TV", "caption": "", "content": "FNB Deep Dive", "episode": "TT Link", "start": "2026-07-07", "end": "2026-07-10", "startRaw": "7/7", "endRaw": "7/10", "totalBudget": 1000.0, "totalSpent": 1000.0, "deliveredViews": 423340, "cpm": 2.36, "projViews": 400000, "projCPM": 2.5, "fanatics": true, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 228, "platform": "TW", "brand": "National", "caption": "", "content": "TB Segment 3 Pt. 1", "episode": "X Link", "start": "2026-07-09", "end": "2026-07-10", "startRaw": "7/9", "endRaw": "7/10", "totalBudget": 300.0, "totalSpent": 300.06, "deliveredViews": 130582, "cpm": 2.3, "projViews": 120000, "projCPM": 2.5, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 7}, {"id": 229, "platform": "TW", "brand": "Baja Blast", "caption": "", "content": "Best Homers 7", "episode": "X Link", "start": "2026-07-09", "end": "2026-07-10", "startRaw": "7/9", "endRaw": "7/10", "totalBudget": 300.0, "totalSpent": 300.05, "deliveredViews": 142060, "cpm": 2.11, "projViews": 120000, "projCPM": 2.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 230, "platform": "TW", "brand": "Xfinity", "caption": "", "content": "Phily Reel 1", "episode": "X Link", "start": "2026-07-09", "end": "2026-07-10", "startRaw": "7/9", "endRaw": "7/10", "totalBudget": 300.0, "totalSpent": 300.11, "deliveredViews": 124339, "cpm": 2.41, "projViews": 120000, "projCPM": 2.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 231, "platform": "TW", "brand": "Xfinity", "caption": "", "content": "Phily Reel 2", "episode": "X Link", "start": "2026-07-09", "end": "2026-07-10", "startRaw": "7/9", "endRaw": "7/10", "totalBudget": 300.0, "totalSpent": 300.31, "deliveredViews": 130630, "cpm": 2.3, "projViews": 120000, "projCPM": 2.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 232, "platform": "TW", "brand": "Xfinity", "caption": "", "content": "Phily Reel 3", "episode": "X Link", "start": "2026-07-10", "end": "2026-07-11", "startRaw": "7/10", "endRaw": "7/11", "totalBudget": 300.0, "totalSpent": 300.38, "deliveredViews": 106816, "cpm": 2.81, "projViews": 120000, "projCPM": 2.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 233, "platform": "TW", "brand": "Xfinity", "caption": "", "content": "Phily Reel 4", "episode": "X Link", "start": "2026-07-10", "end": "2026-07-11", "startRaw": "7/10", "endRaw": "7/11", "totalBudget": 300.0, "totalSpent": 300.36, "deliveredViews": 123212, "cpm": 2.44, "projViews": 120000, "projCPM": 2.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 234, "platform": "TW", "brand": "T-Mobile", "caption": "", "content": "TMO Bests of the Month", "episode": "X Link", "start": "2026-07-10", "end": "2026-07-11", "startRaw": "7/10", "endRaw": "7/11", "totalBudget": 300.0, "totalSpent": 300.0, "deliveredViews": 161465, "cpm": 1.86, "projViews": 120000, "projCPM": 2.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 242, "platform": "TW", "brand": "National", "caption": "", "content": "TB Segment 3 Pt. 2", "episode": "X Link", "start": "2026-07-11", "end": "2026-07-12", "startRaw": "7/11", "endRaw": "7/12", "totalBudget": 300.0, "totalSpent": 300.03, "deliveredViews": 162009, "cpm": 1.85, "projViews": 120000, "projCPM": 2.5, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 7}, {"id": 235, "platform": "TW", "brand": "Xfinity", "caption": "", "content": "Phily Reel 1 Pt. 2", "episode": "X Link", "start": "2026-07-11", "end": "2026-07-12", "startRaw": "7/11", "endRaw": "7/12", "totalBudget": 300.0, "totalSpent": 258.92, "deliveredViews": 109205, "cpm": 2.37, "projViews": 120000, "projCPM": 2.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 236, "platform": "TW", "brand": "Xfinity", "caption": "", "content": "Phily Reel 2 Pt. 2", "episode": "X Link", "start": "2026-07-11", "end": "2026-07-12", "startRaw": "7/11", "endRaw": "7/12", "totalBudget": 300.0, "totalSpent": 259.58, "deliveredViews": 124236, "cpm": 2.09, "projViews": 120000, "projCPM": 2.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 237, "platform": "TW", "brand": "Xfinity", "caption": "", "content": "Phily Reel 2 Pt. 3", "episode": "X Link", "start": "2026-07-13", "end": "2026-07-14", "startRaw": "7/13", "endRaw": "7/14", "totalBudget": 300.0, "totalSpent": 299.95, "deliveredViews": 179791, "cpm": 1.67, "projViews": 120000, "projCPM": 2.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 232, "platform": "TW", "brand": "Xfinity", "caption": "", "content": "Phily Reel 3 Pt. 2", "episode": "X Link", "start": "2026-07-13", "end": "2026-07-14", "startRaw": "7/13", "endRaw": "7/14", "totalBudget": 300.0, "totalSpent": 299.99, "deliveredViews": 154710, "cpm": 1.94, "projViews": 120000, "projCPM": 2.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 233, "platform": "TW", "brand": "Xfinity", "caption": "", "content": "Phily Reel 4 Pt. 2", "episode": "X Link", "start": "2026-07-13", "end": "2026-07-14", "startRaw": "7/13", "endRaw": "7/14", "totalBudget": 300.0, "totalSpent": 299.92, "deliveredViews": 170203, "cpm": 1.76, "projViews": 120000, "projCPM": 2.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 240, "platform": "TW", "brand": "Xfinity", "caption": "", "content": "Yanks Reel 1", "episode": "X Link", "start": "2026-07-13", "end": "2026-07-14", "startRaw": "7/13", "endRaw": "7/14", "totalBudget": 300.0, "totalSpent": 300.0, "deliveredViews": 189402, "cpm": 1.58, "projViews": 120000, "projCPM": 2.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 241, "platform": "TW", "brand": "T-Mobile", "caption": "", "content": "TMO Bests of the Month", "episode": "X Link", "start": "2026-07-14", "end": "2026-07-15", "startRaw": "7/14", "endRaw": "7/15", "totalBudget": 100.0, "totalSpent": 100.0, "deliveredViews": 52111, "cpm": 1.92, "projViews": 40000, "projCPM": 2.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 243, "platform": "TW", "brand": "National", "caption": "", "content": "TB Joez Reel", "episode": "X Link", "start": "2026-07-14", "end": "2026-07-15", "startRaw": "7/14", "endRaw": "7/15", "totalBudget": 300.0, "totalSpent": 300.0, "deliveredViews": 189396, "cpm": 1.58, "projViews": 120000, "projCPM": 2.5, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 7}, {"id": 244, "platform": "TW", "brand": "National", "caption": "", "content": "TB Segment 3 Pt. 3", "episode": "X Link", "start": "2026-07-14", "end": "2026-07-15", "startRaw": "7/14", "endRaw": "7/15", "totalBudget": 300.0, "totalSpent": 300.02, "deliveredViews": 139006, "cpm": 2.16, "projViews": 120000, "projCPM": 2.5, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 7}, {"id": 245, "platform": "TW", "brand": "T-Mobile", "caption": "", "content": "TMO Derby Reel 1", "episode": "TW", "start": "2026-07-14", "end": "2026-07-15", "startRaw": "7/14", "endRaw": "7/15", "totalBudget": 300.0, "totalSpent": 300.07, "deliveredViews": 139053, "cpm": 2.16, "projViews": 120000, "projCPM": 2.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 246, "platform": "TW", "brand": "T-Mobile", "caption": "", "content": "TMO Derby Reel 2", "episode": "TW", "start": "2026-07-14", "end": "2026-07-15", "startRaw": "7/14", "endRaw": "7/15", "totalBudget": 300.0, "totalSpent": 300.05, "deliveredViews": 145959, "cpm": 2.06, "projViews": 120000, "projCPM": 2.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 247, "platform": "TW", "brand": "T-Mobile", "caption": "", "content": "TMO Derby Reel 3", "episode": "TW", "start": "2026-07-14", "end": "2026-07-15", "startRaw": "7/14", "endRaw": "7/15", "totalBudget": 300.0, "totalSpent": 300.03, "deliveredViews": 138245, "cpm": 2.17, "projViews": 120000, "projCPM": 2.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 248, "platform": "TW", "brand": "Xfinity", "caption": "", "content": "Phily Reel 5 Pt. 2", "episode": "X Link", "start": "2026-07-14", "end": "2026-07-15", "startRaw": "7/14", "endRaw": "7/15", "totalBudget": 300.0, "totalSpent": 300.16, "deliveredViews": 175412, "cpm": 1.71, "projViews": 120000, "projCPM": 2.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 250, "platform": "FB", "brand": "Fanatics", "caption": "", "content": "Chasin' Trophies", "episode": "", "start": "2026-07-16", "end": "2026-07-20", "startRaw": "7/16", "endRaw": "7/20", "totalBudget": 1200.0, "totalSpent": 1198.39, "deliveredViews": 187500, "cpm": 6.39, "projViews": 300000, "projCPM": 4.0, "fanatics": true, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 251, "platform": "FB", "brand": "Fanatics", "caption": "", "content": "Swilly's Shockers", "episode": "", "start": "2026-07-16", "end": "2026-07-20", "startRaw": "7/16", "endRaw": "7/20", "totalBudget": 1200.0, "totalSpent": 1199.96, "deliveredViews": 238200, "cpm": 5.04, "projViews": 300000, "projCPM": 4.0, "fanatics": true, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 252, "platform": "TW", "brand": "T-Mobile", "caption": "", "content": "TMO Derby Reel 1", "episode": "TW", "start": "2026-07-16", "end": "2026-07-17", "startRaw": "7/16", "endRaw": "7/17", "totalBudget": 300.0, "totalSpent": 300.05, "deliveredViews": 142960, "cpm": 2.1, "projViews": 120000, "projCPM": 2.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 253, "platform": "TW", "brand": "T-Mobile", "caption": "", "content": "TMO Derby Reel 2", "episode": "TW", "start": "2026-07-16", "end": "2026-07-17", "startRaw": "7/16", "endRaw": "7/17", "totalBudget": 300.0, "totalSpent": 300.1, "deliveredViews": 144935, "cpm": 2.07, "projViews": 120000, "projCPM": 2.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 254, "platform": "TW", "brand": "T-Mobile", "caption": "", "content": "TMO Derby Reel 3", "episode": "TW", "start": "2026-07-16", "end": "2026-07-17", "startRaw": "7/16", "endRaw": "7/17", "totalBudget": 300.0, "totalSpent": 300.15, "deliveredViews": 135601, "cpm": 2.21, "projViews": 120000, "projCPM": 2.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 255, "platform": "TW", "brand": "National", "caption": "", "content": "TB Joez Reel Pt. 2", "episode": "X Link", "start": "2026-07-16", "end": "2026-07-17", "startRaw": "7/16", "endRaw": "7/17", "totalBudget": 300.0, "totalSpent": 299.98, "deliveredViews": 183618, "cpm": 1.63, "projViews": 120000, "projCPM": 2.5, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 7}, {"id": 258, "platform": "TT", "brand": "Amazon", "caption": "", "content": "Trev Reel 1", "episode": "TT Link", "start": "2026-07-16", "end": "2026-07-19", "startRaw": "7/16", "endRaw": "7/19", "totalBudget": 1000.0, "totalSpent": 1000.0, "deliveredViews": 457640, "cpm": 2.19, "projViews": 250000, "projCPM": 4.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 259, "platform": "FB", "brand": "Fanatics", "caption": "", "content": "K Race", "episode": "FB Link", "start": "2026-07-16", "end": "2026-07-23", "startRaw": "7/16", "endRaw": "7/23", "totalBudget": 1701.0, "totalSpent": 1696.8, "deliveredViews": 514200, "cpm": 3.3, "projViews": 425250, "projCPM": 4.0, "fanatics": true, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 260, "platform": "FB", "brand": "Fanatics", "caption": "", "content": "K Race", "episode": "FB Link", "start": "2026-07-16", "end": "2026-07-23", "startRaw": "7/16", "endRaw": "7/23", "totalBudget": 1701.0, "totalSpent": 1700.41, "deliveredViews": 524400, "cpm": 3.24, "projViews": 425250, "projCPM": 4.0, "fanatics": true, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 264, "platform": "TW", "brand": "Xfinity", "caption": "", "content": "Yanks Reel 1 Pt. 3", "episode": "X Link", "start": "2026-07-17", "end": "2026-07-18", "startRaw": "7/17", "endRaw": "7/18", "totalBudget": 300.0, "totalSpent": 299.97, "deliveredViews": 185963, "cpm": 1.61, "projViews": 120000, "projCPM": 2.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 261, "platform": "FB", "brand": "Xfinity", "caption": "", "content": "Yankees Face Mash", "episode": "", "start": "2026-07-17", "end": "2026-07-27", "startRaw": "7/17", "endRaw": "7/27", "totalBudget": 4700.0, "totalSpent": 4697.59, "deliveredViews": 1101360, "cpm": 4.27, "projViews": 1175000, "projCPM": 4.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 262, "platform": "FB", "brand": "Xfinity", "caption": "", "content": "Naming 2025 All-Stars", "episode": "", "start": "2026-07-17", "end": "2026-07-27", "startRaw": "7/17", "endRaw": "7/27", "totalBudget": 4700.0, "totalSpent": 1670.0, "deliveredViews": 104000, "cpm": 16.06, "projViews": 1175000, "projCPM": 4.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 263, "platform": "FB", "brand": "Xfinity", "caption": "", "content": "Best Phillie Ever", "episode": "", "start": "2026-07-17", "end": "2026-07-27", "startRaw": "7/17", "endRaw": "7/27", "totalBudget": 4700.0, "totalSpent": 4504.98, "deliveredViews": 1333221, "cpm": 3.38, "projViews": 1175000, "projCPM": 4.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 265, "platform": "FB", "brand": "Xfinity", "caption": "", "content": "Batting Stance Imitation", "episode": "", "start": "2026-07-18", "end": "2026-07-28", "startRaw": "7/18", "endRaw": "7/28", "totalBudget": 4700.0, "totalSpent": 2977.18, "deliveredViews": 1014664, "cpm": 2.93, "projViews": 1880000, "projCPM": 2.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 266, "platform": "FB", "brand": "Xfinity", "caption": "", "content": "Bullpen Cart", "episode": "", "start": "2026-07-18", "end": "2026-07-28", "startRaw": "7/18", "endRaw": "7/28", "totalBudget": 4700.0, "totalSpent": 4039.13, "deliveredViews": 972900, "cpm": 4.15, "projViews": 1880000, "projCPM": 2.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 264, "platform": "TW", "brand": "Xfinity", "caption": "", "content": "Yanks Reel 1 Pt. 4", "episode": "X Link", "start": "2026-07-19", "end": "2026-07-20", "startRaw": "7/19", "endRaw": "7/20", "totalBudget": 300.0, "totalSpent": 300.02, "deliveredViews": 221069, "cpm": 1.36, "projViews": 120000, "projCPM": 2.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 252, "platform": "TW", "brand": "T-Mobile", "caption": "", "content": "TMO Derby Reel 1", "episode": "TW", "start": "2026-07-19", "end": "2026-07-20", "startRaw": "7/19", "endRaw": "7/20", "totalBudget": 300.0, "totalSpent": 300.02, "deliveredViews": 190661, "cpm": 1.57, "projViews": 120000, "projCPM": 2.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 253, "platform": "TW", "brand": "T-Mobile", "caption": "", "content": "TMO Derby Reel 2", "episode": "TW", "start": "2026-07-19", "end": "2026-07-20", "startRaw": "7/19", "endRaw": "7/20", "totalBudget": 300.0, "totalSpent": 300.02, "deliveredViews": 167227, "cpm": 1.79, "projViews": 120000, "projCPM": 2.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 254, "platform": "TW", "brand": "T-Mobile", "caption": "", "content": "TMO Derby Reel 3", "episode": "TW", "start": "2026-07-19", "end": "2026-07-20", "startRaw": "7/19", "endRaw": "7/20", "totalBudget": 300.0, "totalSpent": 300.03, "deliveredViews": 183484, "cpm": 1.64, "projViews": 120000, "projCPM": 2.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 255, "platform": "TW", "brand": "National", "caption": "", "content": "TB Joez Reel Pt. 3", "episode": "X Link", "start": "2026-07-19", "end": "2026-07-20", "startRaw": "7/19", "endRaw": "7/20", "totalBudget": 300.0, "totalSpent": 300.02, "deliveredViews": 204753, "cpm": 1.47, "projViews": 120000, "projCPM": 2.5, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 7}, {"id": 273, "platform": "TW", "brand": "National", "caption": "", "content": "National JMB Clip 1", "episode": "X Link", "start": "2026-07-20", "end": "2026-07-21", "startRaw": "7/20", "endRaw": "7/21", "totalBudget": 300.0, "totalSpent": 300.04, "deliveredViews": 212586, "cpm": 1.41, "projViews": 120000, "projCPM": 2.5, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 7}, {"id": 274, "platform": "FB", "brand": "Apple TV", "caption": "", "content": "BT Segment", "episode": "FBR Link", "start": "2026-07-20", "end": "2026-07-24", "startRaw": "7/20", "endRaw": "7/24", "totalBudget": 550.0, "totalSpent": 549.96, "deliveredViews": 123800, "cpm": 4.44, "projViews": 137500, "projCPM": 4.0, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 7}, {"id": 275, "platform": "FB", "brand": "Amazon", "caption": "", "content": "Rose Reel 1 (18x)", "episode": "FBR Link", "start": "2026-07-20", "end": "2026-07-24", "startRaw": "7/20", "endRaw": "7/24", "totalBudget": 1350.0, "totalSpent": 904.31, "deliveredViews": 246800, "cpm": 3.66, "projViews": 337500, "projCPM": 4.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 276, "platform": "FB", "brand": "Amazon", "caption": "", "content": "Rose Reel 2 (Host Cities)", "episode": "FBR Link", "start": "2026-07-20", "end": null, "startRaw": "7/20", "endRaw": "1350", "totalBudget": 1350.0, "totalSpent": 900.03, "deliveredViews": 213700, "cpm": 4.21, "projViews": 337500, "projCPM": 4.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 252, "platform": "TW", "brand": "T-Mobile", "caption": "", "content": "TMO Derby Reel 1", "episode": "TW", "start": "2026-07-21", "end": "2026-07-22", "startRaw": "7/21", "endRaw": "7/22", "totalBudget": 300.0, "totalSpent": 300.03, "deliveredViews": 188690, "cpm": 1.59, "projViews": 150000, "projCPM": 2.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 253, "platform": "TW", "brand": "T-Mobile", "caption": "", "content": "TMO Derby Reel 2", "episode": "TW", "start": "2026-07-21", "end": "2026-07-22", "startRaw": "7/21", "endRaw": "7/22", "totalBudget": 300.0, "totalSpent": 300.03, "deliveredViews": 188076, "cpm": 1.6, "projViews": 150000, "projCPM": 2.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 254, "platform": "TW", "brand": "T-Mobile", "caption": "", "content": "TMO Derby Reel 3", "episode": "TW", "start": "2026-07-21", "end": "2026-07-22", "startRaw": "7/21", "endRaw": "7/22", "totalBudget": 300.0, "totalSpent": 300.04, "deliveredViews": 184281, "cpm": 1.63, "projViews": 150000, "projCPM": 2.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 280, "platform": "TW", "brand": "National", "caption": "", "content": "TB Joez Reel 2", "episode": "X Link", "start": "2026-07-21", "end": "2026-07-22", "startRaw": "7/21", "endRaw": "7/22", "totalBudget": 300.0, "totalSpent": 300.0, "deliveredViews": 177318, "cpm": 1.69, "projViews": 150000, "projCPM": 2.0, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 7}, {"id": 281, "platform": "TW", "brand": "Xfinity", "caption": "", "content": "Yanks Reel 1 Pt. 5", "episode": "X Link", "start": "2026-07-21", "end": "2026-07-22", "startRaw": "7/21", "endRaw": "7/22", "totalBudget": 300.0, "totalSpent": 300.04, "deliveredViews": 200627, "cpm": 1.5, "projViews": 150000, "projCPM": 2.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 273, "platform": "TW", "brand": "National", "caption": "", "content": "National JMB Clip 1 Pt. 2", "episode": "X Link", "start": "2026-07-22", "end": "2026-07-23", "startRaw": "7/22", "endRaw": "7/23", "totalBudget": 300.0, "totalSpent": 300.49, "deliveredViews": 208428, "cpm": 1.44, "projViews": 150000, "projCPM": 2.0, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 7}, {"id": 273, "platform": "TW", "brand": "National", "caption": "", "content": "National JMB Clip 2", "episode": "X Link", "start": "2026-07-22", "end": "2026-07-23", "startRaw": "7/22", "endRaw": "7/23", "totalBudget": 300.0, "totalSpent": 300.0, "deliveredViews": 170492, "cpm": 1.76, "projViews": 150000, "projCPM": 2.0, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 7}, {"id": 252, "platform": "TW", "brand": "T-Mobile", "caption": "", "content": "TMO Derby Reel 1", "episode": "TW", "start": "2026-07-23", "end": "2026-07-24", "startRaw": "7/23", "endRaw": "7/24", "totalBudget": 300.0, "totalSpent": 300.03, "deliveredViews": 167998, "cpm": 1.79, "projViews": 150000, "projCPM": 2.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 253, "platform": "TW", "brand": "T-Mobile", "caption": "", "content": "TMO Derby Reel 2", "episode": "TW", "start": "2026-07-23", "end": "2026-07-24", "startRaw": "7/23", "endRaw": "7/24", "totalBudget": 300.0, "totalSpent": 300.03, "deliveredViews": 140447, "cpm": 2.14, "projViews": 150000, "projCPM": 2.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 254, "platform": "TW", "brand": "T-Mobile", "caption": "", "content": "TMO Derby Reel 3", "episode": "TW", "start": "2026-07-23", "end": "2026-07-24", "startRaw": "7/23", "endRaw": "7/24", "totalBudget": 300.0, "totalSpent": 300.02, "deliveredViews": 148682, "cpm": 2.02, "projViews": 150000, "projCPM": 2.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 280, "platform": "TW", "brand": "National", "caption": "", "content": "TB Joez Reel 2 Pt. 2", "episode": "X Link", "start": "2026-07-23", "end": "2026-07-24", "startRaw": "7/23", "endRaw": "7/24", "totalBudget": 300.0, "totalSpent": 300.17, "deliveredViews": 147027, "cpm": 2.04, "projViews": 150000, "projCPM": 2.0, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 7}, {"id": 281, "platform": "TW", "brand": "Xfinity", "caption": "", "content": "Yanks Reel 1 Pt. 6", "episode": "X Link", "start": "2026-07-23", "end": "2026-07-24", "startRaw": "7/23", "endRaw": "7/24", "totalBudget": 300.0, "totalSpent": 300.02, "deliveredViews": 194306, "cpm": 1.54, "projViews": 150000, "projCPM": 2.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 258, "platform": "TT", "brand": "Amazon", "caption": "", "content": "Trev Reel 1 Pt. 2", "episode": "TT Link", "start": "2026-07-23", "end": "2026-07-24", "startRaw": "7/23", "endRaw": "7/24", "totalBudget": 220.0, "totalSpent": 220.0, "deliveredViews": 97100, "cpm": 2.27, "projViews": 88000, "projCPM": 2.5, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 273, "platform": "TW", "brand": "National", "caption": "", "content": "National JMB Clip 2", "episode": "X Link", "start": "2026-07-24", "end": "2026-07-24", "startRaw": "7/24", "endRaw": "7/24", "totalBudget": 50.0, "totalSpent": 50.02, "deliveredViews": 29061, "cpm": 1.72, "projViews": 25000, "projCPM": 2.0, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 7}, {"id": 253, "platform": "TW", "brand": "T-Mobile", "caption": "", "content": "TMO Derby Reel 2", "episode": "TW", "start": "2026-07-26", "end": "2026-07-27", "startRaw": "7/26", "endRaw": "7/27", "totalBudget": 300.0, "totalSpent": 300.03, "deliveredViews": 143877, "cpm": 2.09, "projViews": 150000, "projCPM": 2.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 254, "platform": "TW", "brand": "T-Mobile", "caption": "", "content": "TMO Derby Reel 3", "episode": "TW", "start": "2026-07-26", "end": "2026-07-27", "startRaw": "7/26", "endRaw": "7/27", "totalBudget": 300.0, "totalSpent": 300.02, "deliveredViews": 178330, "cpm": 1.68, "projViews": 150000, "projCPM": 2.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 281, "platform": "TW", "brand": "Xfinity", "caption": "", "content": "Yanks Reel 1 Pt. 7", "episode": "X Link", "start": "2026-07-26", "end": "2026-07-27", "startRaw": "7/26", "endRaw": "7/27", "totalBudget": 300.0, "totalSpent": 300.02, "deliveredViews": 210517, "cpm": 1.43, "projViews": 150000, "projCPM": 2.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}, {"id": 280, "platform": "TW", "brand": "National", "caption": "", "content": "TB Joez Reel 2 Pt. 3", "episode": "X Link", "start": "2026-07-26", "end": "2026-07-27", "startRaw": "7/26", "endRaw": "7/27", "totalBudget": 300.0, "totalSpent": 300.03, "deliveredViews": 173016, "cpm": 1.73, "projViews": 150000, "projCPM": 2.0, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 7}, {"id": 280, "platform": "TW", "brand": "National", "caption": "", "content": "TB Joez Reel 2 Pt. 4", "episode": "X Link", "start": "2026-07-28", "end": "2026-07-29", "startRaw": "7/28", "endRaw": "7/29", "totalBudget": 300.0, "totalSpent": null, "deliveredViews": null, "cpm": null, "projViews": 150000, "projCPM": 2.0, "fanatics": false, "segment": true, "curationIntegration": false, "whg": false, "standard": false, "month": 7}, {"id": 253, "platform": "TW", "brand": "T-Mobile", "caption": "", "content": "TMO Derby Reel 2", "episode": "TW", "start": "2026-07-28", "end": "2026-07-29", "startRaw": "7/28", "endRaw": "7/29", "totalBudget": 300.0, "totalSpent": null, "deliveredViews": null, "cpm": null, "projViews": 150000, "projCPM": 2.0, "fanatics": false, "segment": false, "curationIntegration": true, "whg": false, "standard": false, "month": 7}];
+
+</script>
+<script>
+/* ==========================================================================
+   Boosting Tracker — app logic (View: 2026 Boosts)
+   ========================================================================== */
+
+(function () {
+  const STORAGE_KEY = "jomboy-boosting-tracker:2026-data";
+  const PLATFORM_ORDER = ["FB", "IG", "TW", "TT"];
+  const MONTH_NAMES = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+  // Expected column headers in the raw sheet export (case-insensitive match).
+  const HEADER_MAP = {
+    "boost id": "id",
+    "platform": "platform",
+    "brand": "brand",
+    "caption": "caption",
+    "content": "content",
+    "episode": "episode",
+    "start": "start",
+    "end": "end",
+    "total budget": "totalBudget",
+    "total spent": "totalSpent",
+    "delivered views": "deliveredViews",
+    "cpm": "cpm",
+    "proj views": "projViews",
+    "proj cpm": "projCPM",
+    "fanatics?": "fanatics",
+    "segment?": "segment",
+    "curation/integration?": "curationIntegration",
+    "whg?": "whg",
+    "standard?": "standard",
+    "month": "month",
+  };
+
+  const BRAND_FIXES = { "mlb the show": "MLB The Show" };
+
+  let DATA = [];
+
+  // Single source of truth for the whole page: By Brand and Report both
+  // read through this rather than keeping their own copies of the data.
+  window.BoostingTrackerData = {
+    getBoosts: () => DATA,
+  };
+
+  const state = {
+    startFrom: null,
+    startTo: null,
+    endFrom: null,
+    endTo: null,
+    budgetMin: null,
+    budgetMax: null,
+    spendMin: null,
+    spendMax: null,
+    brand: "",
+    platforms: new Set(),
+    month: null,
+    flags: {
+      fanatics: "any",
+      segment: "any",
+      curationIntegration: "any",
+      whg: "any",
+      standard: "any",
+    },
+    sortKey: "start",
+    sortDir: "asc",
+  };
+
+  const $ = (sel, ctx) => (ctx || document).querySelector(sel);
+  const $$ = (sel, ctx) => Array.from((ctx || document).querySelectorAll(sel));
+
+  /* ---------------- formatting ---------------- */
+
+  function fmtMoney(n) {
+    if (n === null || n === undefined || isNaN(n)) return "—";
+    return "$" + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  function fmtInt(n) {
+    if (n === null || n === undefined || isNaN(n)) return "—";
+    return n.toLocaleString("en-US");
+  }
+  function fmtDate(iso) {
+    if (!iso) return "—";
+    const [y, m, d] = iso.split("-").map(Number);
+    return `${MONTH_NAMES[m]} ${d}`;
+  }
+
+  /* ---------------- CSV parsing / cleaning ---------------- */
+
+  function cleanMoney(raw) {
+    if (raw === undefined || raw === null) return null;
+    const s = String(raw).trim().replace(/\$/g, "").replace(/,/g, "");
+    if (s === "" || s === "#DIV/0!") return null;
+    const n = parseFloat(s);
+    return isNaN(n) ? null : Math.round(n * 100) / 100;
+  }
+
+  function cleanInt(raw) {
+    if (raw === undefined || raw === null) return null;
+    const s = String(raw).trim().replace(/,/g, "");
+    if (s === "" || s === "#DIV/0!") return null;
+    const n = parseFloat(s);
+    return isNaN(n) ? null : Math.round(n);
+  }
+
+  function cleanFlag(raw) {
+    return String(raw || "").trim().toUpperCase() === "Y";
+  }
+
+  function normBrand(raw) {
+    const s = String(raw || "").trim();
+    const fixed = BRAND_FIXES[s.toLowerCase()];
+    return fixed || s;
+  }
+
+  function toISO(raw, year) {
+    const s = String(raw || "").trim();
+    if (!s || s.indexOf("/") === -1) return null;
+    const parts = s.split("/");
+    const m = parseInt(parts[0], 10);
+    const d = parseInt(parts[1], 10);
+    if (!m || !d) return null;
+    return `${year}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+  }
+
+  // Convert raw parsed rows (array of arrays) into clean boost records.
+  function rowsToRecords(rows, year) {
+    let headerIdx = -1;
+    for (let i = 0; i < rows.length; i++) {
+      const first = String((rows[i][0] || "")).trim().toLowerCase();
+      if (first === "boost id") {
+        headerIdx = i;
+        break;
+      }
+    }
+    if (headerIdx === -1) {
+      throw new Error('Could not find a header row (expected a "Boost ID" column). Check that this is the raw sheet export.');
+    }
+
+    const headerRow = rows[headerIdx];
+    const colIndex = {};
+    headerRow.forEach((h, i) => {
+      const key = String(h || "").trim().toLowerCase();
+      if (HEADER_MAP[key]) colIndex[HEADER_MAP[key]] = i;
+    });
+
+    const required = ["id", "platform", "brand", "start", "end"];
+    const missing = required.filter((f) => colIndex[f] === undefined);
+    if (missing.length) {
+      throw new Error("Missing expected columns: " + missing.join(", "));
+    }
+
+    const records = [];
+    for (let i = headerIdx + 1; i < rows.length; i++) {
+      const r = rows[i];
+      if (!r || !r.length) continue;
+      const idRaw = String(r[colIndex.id] || "").trim();
+      const platformRaw = String(r[colIndex.platform] || "").trim();
+      if (!/^\d+$/.test(idRaw)) continue;
+      if (platformRaw.toLowerCase() === "platform") continue;
+
+      records.push({
+        id: parseInt(idRaw, 10),
+        platform: platformRaw,
+        brand: normBrand(r[colIndex.brand]),
+        caption: String(r[colIndex.caption] || "").trim(),
+        content: String(r[colIndex.content] || "").trim(),
+        episode: String(r[colIndex.episode] || "").trim(),
+        start: toISO(r[colIndex.start], year),
+        end: toISO(r[colIndex.end], year),
+        startRaw: String(r[colIndex.start] || "").trim(),
+        endRaw: String(r[colIndex.end] || "").trim(),
+        totalBudget: cleanMoney(r[colIndex.totalBudget]),
+        totalSpent: cleanMoney(r[colIndex.totalSpent]),
+        deliveredViews: cleanInt(r[colIndex.deliveredViews]),
+        cpm: cleanMoney(r[colIndex.cpm]),
+        projViews: cleanInt(r[colIndex.projViews]),
+        projCPM: cleanMoney(r[colIndex.projCPM]),
+        fanatics: cleanFlag(r[colIndex.fanatics]),
+        segment: cleanFlag(r[colIndex.segment]),
+        curationIntegration: cleanFlag(r[colIndex.curationIntegration]),
+        whg: cleanFlag(r[colIndex.whg]),
+        standard: cleanFlag(r[colIndex.standard]),
+        month: /^\d+$/.test(String(r[colIndex.month] || "").trim()) ? parseInt(r[colIndex.month], 10) : null,
+      });
+    }
+    return records;
+  }
+
+  function parseCSVText(text, year) {
+    const parsed = Papa.parse(text, { skipEmptyLines: false });
+    if (parsed.errors && parsed.errors.length) {
+      const fatal = parsed.errors.filter((e) => e.type !== "FieldMismatch");
+      if (fatal.length) throw new Error(fatal[0].message);
+    }
+    return rowsToRecords(parsed.data, year);
+  }
+
+  /* ---------------- data source management ---------------- */
+
+  function setStatus(text, isCustom) {
+    $("#dataStatusText").textContent = text;
+    $(".data-panel .dot").style.background = isCustom ? "var(--accent)" : "var(--accent2)";
+  }
+
+  function showUploadError(msg) {
+    const el = $("#uploadError");
+    if (!msg) {
+      el.style.display = "none";
+      el.textContent = "";
+      return;
+    }
+    el.style.display = "block";
+    el.textContent = msg;
+  }
+
+  // Other views (By Brand, Report) read the current dataset through this
+  // global getter and re-render whenever this event fires, so the whole
+  // page stays driven by a single CSV upload.
+  function broadcastDataChange() {
+    document.dispatchEvent(new CustomEvent("boosting-tracker:data-changed"));
+  }
+
+  function loadInitialData() {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        DATA = parsed.records;
+        setStatus(`Custom upload: ${parsed.filename} · ${parsed.records.length} boosts · ${new Date(parsed.uploadedAt).toLocaleString()}`, true);
+        $("#dataYear").value = parsed.year || 2026;
+        return;
+      }
+    } catch (e) {
+      /* fall through to default */
+    }
+    DATA = BOOSTS_2026;
+    setStatus(`Using default embedded dataset · ${DATA.length} boosts`, false);
+  }
+
+  function handleFileUpload(file) {
+    showUploadError(null);
+    const year = parseInt($("#dataYear").value, 10) || 2026;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const records = parseCSVText(e.target.result, year);
+        if (!records.length) throw new Error("No valid boost rows found in this file.");
+        DATA = records;
+        localStorage.setItem(
+          STORAGE_KEY,
+          JSON.stringify({ filename: file.name, uploadedAt: Date.now(), year, records })
+        );
+        setStatus(`Custom upload: ${file.name} · ${records.length} boosts · just now`, true);
+        resetFilterUI();
+        populateBrandOptions();
+        render();
+        broadcastDataChange();
+      } catch (err) {
+        showUploadError("Could not read this file: " + err.message);
+      }
+    };
+    reader.onerror = () => showUploadError("Could not read this file.");
+    reader.readAsText(file);
+  }
+
+  /* ---------------- filtering / sorting ---------------- */
+
+  function getFiltered() {
+    return DATA.filter((r) => {
+      if (state.startFrom && (!r.start || r.start < state.startFrom)) return false;
+      if (state.startTo && (!r.start || r.start > state.startTo)) return false;
+      if (state.endFrom && (!r.end || r.end < state.endFrom)) return false;
+      if (state.endTo && (!r.end || r.end > state.endTo)) return false;
+      if (state.budgetMin !== null && (r.totalBudget === null || r.totalBudget < state.budgetMin)) return false;
+      if (state.budgetMax !== null && (r.totalBudget === null || r.totalBudget > state.budgetMax)) return false;
+      if (state.spendMin !== null && (r.totalSpent === null || r.totalSpent < state.spendMin)) return false;
+      if (state.spendMax !== null && (r.totalSpent === null || r.totalSpent > state.spendMax)) return false;
+      if (state.brand && r.brand !== state.brand) return false;
+      if (state.platforms.size && !state.platforms.has(r.platform)) return false;
+      if (state.month !== null && r.month !== state.month) return false;
+
+      // Meta tags: multiple "Yes" selections are OR'd together (match ANY of them).
+      // Each "No" selection is a hard exclusion (record must not have that tag).
+      const yesFlags = [];
+      for (const [flag, val] of Object.entries(state.flags)) {
+        if (val === "no" && r[flag]) return false;
+        if (val === "yes") yesFlags.push(flag);
+      }
+      if (yesFlags.length && !yesFlags.some((f) => r[f])) return false;
+
+      return true;
+    });
+  }
+
+  function sortRows(rows) {
+    const { sortKey, sortDir } = state;
+    const dir = sortDir === "asc" ? 1 : -1;
+    return rows.slice().sort((a, b) => {
+      let av = a[sortKey];
+      let bv = b[sortKey];
+      if (av === null || av === undefined) av = sortDir === "asc" ? Infinity : -Infinity;
+      if (bv === null || bv === undefined) bv = sortDir === "asc" ? Infinity : -Infinity;
+      if (typeof av === "string" && typeof bv === "string") {
+        return av.localeCompare(bv) * dir;
+      }
+      return (av - bv) * dir;
+    });
+  }
+
+  /* ---------------- rendering ---------------- */
+
+  function populateBrandOptions() {
+    const brands = Array.from(new Set(DATA.map((r) => r.brand))).sort();
+    const sel = $("#brandSelect");
+    sel.innerHTML = '<option value="">All brands</option>';
+    brands.forEach((b) => {
+      const opt = document.createElement("option");
+      opt.value = b;
+      opt.textContent = b;
+      sel.appendChild(opt);
+    });
+  }
+
+  function renderKPIs(rows) {
+    const strip = $("#kpiStrip");
+    strip.innerHTML = "";
+
+    const byPlatform = {};
+    PLATFORM_ORDER.forEach((p) => (byPlatform[p] = { spent: 0, views: 0, count: 0 }));
+
+    let totalSpent = 0, totalViews = 0, totalCount = rows.length;
+
+    rows.forEach((r) => {
+      const p = r.platform;
+      if (!byPlatform[p]) byPlatform[p] = { spent: 0, views: 0, count: 0 };
+      if (r.totalSpent) { byPlatform[p].spent += r.totalSpent; totalSpent += r.totalSpent; }
+      if (r.deliveredViews) { byPlatform[p].views += r.deliveredViews; totalViews += r.deliveredViews; }
+      byPlatform[p].count += 1;
+    });
+
+    const cards = [...PLATFORM_ORDER.map((p) => ({ label: p, ...byPlatform[p], color: `var(--${p.toLowerCase()})` }))];
+    cards.push({ label: "ALL", spent: totalSpent, views: totalViews, count: totalCount, color: "var(--accent)" });
+
+    cards.forEach((c) => {
+      const cpm = c.views ? (c.spent / c.views) * 1000 : null;
+      const card = document.createElement("div");
+      card.className = "kpi-card";
+      card.style.setProperty("--platform-color", c.color);
+      card.innerHTML = `
+        <div class="kpi-plat"><span>${c.label}</span><span class="count">${c.count} boost${c.count === 1 ? "" : "s"}</span></div>
+        <div class="kpi-row"><span>Spent</span><strong>${fmtMoney(c.spent)}</strong></div>
+        <div class="kpi-row"><span>Views</span><strong>${fmtInt(c.views)}</strong></div>
+        <div class="kpi-row"><span>Blended CPM</span><strong>${cpm !== null ? fmtMoney(cpm) : "—"}</strong></div>
+      `;
+      strip.appendChild(card);
+    });
+  }
+
+  function flagDots(r) {
+    const map = [
+      ["fanatics", "FN"],
+      ["segment", "SG"],
+      ["curationIntegration", "CI"],
+      ["whg", "WH"],
+      ["standard", "ST"],
+    ];
+    const active = map.filter(([k]) => r[k]);
+    if (!active.length) return `<span style="color:var(--muted); font-size:11px;">—</span>`;
+    return active.map(([, label]) => `<span class="flag-dot" title="${label}">${label}</span>`).join("");
+  }
+
+  function cpmBadge(r) {
+    if (r.cpm === null || r.cpm === undefined) return `<span class="cpm-neutral">—</span>`;
+    let cls = "cpm-neutral";
+    if (r.projCPM) cls = r.cpm <= r.projCPM ? "cpm-good" : "cpm-bad";
+    return `<span class="cpm-flag ${cls}">${fmtMoney(r.cpm)}</span>`;
+  }
+
+  function renderTable(rows) {
+    const tbody = $("#boostsBody");
+    const emptyState = $("#emptyState");
+    tbody.innerHTML = "";
+
+    if (!rows.length) {
+      emptyState.style.display = "block";
+      return;
+    }
+    emptyState.style.display = "none";
+
+    const frag = document.createDocumentFragment();
+    rows.forEach((r) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td class="id-col">#${r.id}</td>
+        <td><span class="platform-pill ${r.platform}">${r.platform}</span></td>
+        <td class="brand-cell">
+          <strong>${r.brand}</strong>
+          <span class="content-line">${[r.content, r.episode].filter(Boolean).join(" · ")}</span>
+        </td>
+        <td class="date-range">${fmtDate(r.start)} – ${fmtDate(r.end)}</td>
+        <td class="num-col">${fmtMoney(r.totalBudget)}</td>
+        <td class="num-col">${fmtMoney(r.totalSpent)}</td>
+        <td class="num-col">${fmtInt(r.deliveredViews)}</td>
+        <td class="num-col">${cpmBadge(r)}</td>
+        <td><div class="flags-cell">${flagDots(r)}</div></td>
+      `;
+      frag.appendChild(tr);
+    });
+    tbody.appendChild(frag);
+  }
+
+  function renderCount(rows) {
+    $("#resultCount").innerHTML = `Showing <strong>${rows.length}</strong> of <strong>${DATA.length}</strong> boosts`;
+  }
+
+  function renderSortArrows() {
+    $$("#view-log th[data-key]").forEach((th) => {
+      const arrow = th.querySelector(".arrow");
+      if (arrow) arrow.remove();
+      if (th.dataset.key === state.sortKey) {
+        const span = document.createElement("span");
+        span.className = "arrow";
+        span.textContent = state.sortDir === "asc" ? "▲" : "▼";
+        th.appendChild(span);
+      }
+    });
+  }
+
+  function render() {
+    const filtered = getFiltered();
+    const sorted = sortRows(filtered);
+    renderKPIs(filtered);
+    renderTable(sorted);
+    renderCount(filtered);
+    renderSortArrows();
+  }
+
+  /* ---------------- date range popovers ---------------- */
+
+  function updateRangeTrigger(prefix) {
+    const from = $("#" + prefix + "From").value;
+    const to = $("#" + prefix + "To").value;
+    const trigger = $("#" + prefix + "RangeTrigger");
+    if (!from && !to) {
+      trigger.textContent = "All dates";
+      trigger.classList.remove("has-value");
+      return;
+    }
+    const label = (iso) => (iso ? fmtDate(iso) : "…");
+    trigger.textContent = `${label(from)} – ${label(to)}`;
+    trigger.classList.add("has-value");
+  }
+
+  function closeAllPopovers(except) {
+    $$(".daterange-popover").forEach((p) => {
+      if (p !== except) p.classList.remove("open");
+    });
+  }
+
+  function wireDateRangePopover(prefix) {
+    const trigger = $("#" + prefix + "RangeTrigger");
+    const popover = $("#" + prefix + "RangePopover");
+    const fromInput = $("#" + prefix + "From");
+    const toInput = $("#" + prefix + "To");
+
+    trigger.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const willOpen = !popover.classList.contains("open");
+      closeAllPopovers();
+      popover.classList.toggle("open", willOpen);
+    });
+
+    popover.addEventListener("click", (e) => e.stopPropagation());
+
+    fromInput.addEventListener("change", (e) => {
+      state[prefix + "From"] = e.target.value || null;
+      updateRangeTrigger(prefix);
+      render();
+    });
+    toInput.addEventListener("change", (e) => {
+      state[prefix + "To"] = e.target.value || null;
+      updateRangeTrigger(prefix);
+      render();
+    });
+
+    $(`.apply-range-btn[data-target="${prefix}"]`).addEventListener("click", () => {
+      popover.classList.remove("open");
+    });
+
+    $(`.clear-range-btn[data-target="${prefix}"]`).addEventListener("click", () => {
+      fromInput.value = "";
+      toInput.value = "";
+      state[prefix + "From"] = null;
+      state[prefix + "To"] = null;
+      updateRangeTrigger(prefix);
+      render();
+    });
+  }
+
+
+  function resetFilterUI() {
+    state.startFrom = state.startTo = null;
+    state.endFrom = state.endTo = null;
+    state.budgetMin = state.budgetMax = null;
+    state.spendMin = state.spendMax = null;
+    state.brand = "";
+    state.platforms = new Set();
+    state.month = null;
+    Object.keys(state.flags).forEach((k) => (state.flags[k] = "any"));
+
+    ["startFrom", "startTo", "endFrom", "endTo", "budgetMin", "budgetMax", "spendMin", "spendMax"].forEach((id) => {
+      $("#" + id).value = "";
+    });
+    $("#brandSelect").value = "";
+    $("#monthSelect").value = "";
+    updateRangeTrigger("start");
+    updateRangeTrigger("end");
+    closeAllPopovers();
+    $$(".chip.active").forEach((c) => c.classList.remove("active"));
+    $$(".tri-toggle").forEach((group) => {
+      $$("button", group).forEach((b) => b.classList.toggle("active", b.dataset.val === "any"));
+    });
+  }
+
+  function wireFilters() {
+    const numOrNull = (v) => (v === "" || v === null || v === undefined ? null : parseFloat(v));
+
+    wireDateRangePopover("start");
+    wireDateRangePopover("end");
+    document.addEventListener("click", () => closeAllPopovers());
+
+    $("#budgetMin").addEventListener("input", (e) => { state.budgetMin = numOrNull(e.target.value); render(); });
+    $("#budgetMax").addEventListener("input", (e) => { state.budgetMax = numOrNull(e.target.value); render(); });
+    $("#spendMin").addEventListener("input", (e) => { state.spendMin = numOrNull(e.target.value); render(); });
+    $("#spendMax").addEventListener("input", (e) => { state.spendMax = numOrNull(e.target.value); render(); });
+
+    $("#brandSelect").addEventListener("change", (e) => {
+      state.brand = e.target.value;
+      render();
+    });
+    $("#monthSelect").addEventListener("change", (e) => {
+      state.month = e.target.value ? Number(e.target.value) : null;
+      render();
+    });
+
+    $$(".chip[data-platform]").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        const p = chip.dataset.platform;
+        if (state.platforms.has(p)) { state.platforms.delete(p); chip.classList.remove("active"); }
+        else { state.platforms.add(p); chip.classList.add("active"); }
+        render();
+      });
+    });
+
+    $$(".tri-toggle").forEach((group) => {
+      const flag = group.dataset.flag;
+      $$("button", group).forEach((btn) => {
+        btn.addEventListener("click", () => {
+          state.flags[flag] = btn.dataset.val;
+          $$("button", group).forEach((b) => b.classList.toggle("active", b === btn));
+          render();
+        });
+      });
+    });
+
+    $("#resetBtn").addEventListener("click", () => {
+      resetFilterUI();
+      render();
+    });
+
+    $("#csvUpload").addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) handleFileUpload(file);
+    });
+
+    $("#clearDataBtn").addEventListener("click", () => {
+      localStorage.removeItem(STORAGE_KEY);
+      DATA = BOOSTS_2026;
+      $("#dataYear").value = 2026;
+      setStatus(`Using default embedded dataset · ${DATA.length} boosts`, false);
+      showUploadError(null);
+      resetFilterUI();
+      populateBrandOptions();
+      render();
+      broadcastDataChange();
+    });
+
+    $$("#view-log th[data-key]").forEach((th) => {
+      th.addEventListener("click", () => {
+        const key = th.dataset.key;
+        if (state.sortKey === key) {
+          state.sortDir = state.sortDir === "asc" ? "desc" : "asc";
+        } else {
+          state.sortKey = key;
+          state.sortDir = key === "start" ? "asc" : "desc";
+        }
+        render();
+      });
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    loadInitialData();
+    populateBrandOptions();
+    wireFilters();
+    render();
+    broadcastDataChange();
+  });
+})();
+
+</script>
+<script>
+(function () {
+  const PLATFORM_ORDER = ["FB", "IG", "TW", "TT"];
+  const MONTH_NAMES = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+  const $ = (sel, ctx) => (ctx || document).querySelector(sel);
+  const $$ = (sel, ctx) => Array.from((ctx || document).querySelectorAll(sel));
+
+  function fmtMoney(n) {
+    if (n === null || n === undefined || isNaN(n)) return "—";
+    return "$" + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  function fmtInt(n) {
+    if (n === null || n === undefined || isNaN(n)) return "—";
+    return n.toLocaleString("en-US");
+  }
+  function cpmOf(spend, views) {
+    return views ? (spend / views) * 1000 : null;
+  }
+
+  /* ---------------- live aggregation from the shared boost log ---------------- */
+
+  function computeBrandView(boosts) {
+    const map = {};
+    boosts.forEach((b) => {
+      const key = b.brand || "Unknown";
+      if (!map[key]) map[key] = { name: key, totalBoosts: 0, totalSpend: 0, impressions: 0, platforms: {} };
+      const entry = map[key];
+      entry.totalBoosts += 1;
+      entry.totalSpend += b.totalSpent || 0;
+      entry.impressions += b.deliveredViews || 0;
+      const pf = b.platform || "—";
+      if (!entry.platforms[pf]) entry.platforms[pf] = { platform: pf, totalBoosts: 0, totalSpend: 0, impressions: 0 };
+      const pEntry = entry.platforms[pf];
+      pEntry.totalBoosts += 1;
+      pEntry.totalSpend += b.totalSpent || 0;
+      pEntry.impressions += b.deliveredViews || 0;
+    });
+
+    return Object.values(map)
+      .map((b) => ({
+        ...b,
+        cpm: cpmOf(b.totalSpend, b.impressions),
+        platforms: PLATFORM_ORDER.filter((p) => b.platforms[p]).map((p) => {
+          const pd = b.platforms[p];
+          return { ...pd, cpm: cpmOf(pd.totalSpend, pd.impressions) };
+        }),
+      }))
+      .sort((a, b) => b.totalSpend - a.totalSpend);
+  }
+
+  function computeMonthView(boosts) {
+    const map = {};
+    boosts.forEach((b) => {
+      if (!b.month) return;
+      if (!map[b.month]) map[b.month] = { month: b.month, totalBoosts: 0, totalSpend: 0, impressions: 0, platforms: {} };
+      const entry = map[b.month];
+      entry.totalBoosts += 1;
+      entry.totalSpend += b.totalSpent || 0;
+      entry.impressions += b.deliveredViews || 0;
+      const pf = b.platform || "—";
+      if (!entry.platforms[pf]) entry.platforms[pf] = { platform: pf, totalBoosts: 0, totalSpend: 0, impressions: 0 };
+      const pEntry = entry.platforms[pf];
+      pEntry.totalBoosts += 1;
+      pEntry.totalSpend += b.totalSpent || 0;
+      pEntry.impressions += b.deliveredViews || 0;
+    });
+
+    return Object.keys(map)
+      .map(Number)
+      .sort((a, b) => a - b)
+      .map((m) => {
+        const e = map[m];
+        return {
+          name: MONTH_NAMES[m] || `Month ${m}`,
+          totalBoosts: e.totalBoosts,
+          totalSpend: e.totalSpend,
+          impressions: e.impressions,
+          cpm: cpmOf(e.totalSpend, e.impressions),
+          platforms: PLATFORM_ORDER.filter((p) => e.platforms[p]).map((p) => {
+            const pd = e.platforms[p];
+            return { ...pd, cpm: cpmOf(pd.totalSpend, pd.impressions) };
+          }),
+        };
+      });
+  }
+
+  /* ---------------- rendering ---------------- */
+
+  function renderKPIs(boosts) {
+    const strip = $("#kpiStripBrand");
+    strip.innerHTML = "";
+
+    const byPlatform = {};
+    PLATFORM_ORDER.forEach((p) => (byPlatform[p] = { spend: 0, views: 0, count: 0 }));
+    let totalSpend = 0, totalViews = 0;
+
+    boosts.forEach((b) => {
+      const p = b.platform;
+      if (!byPlatform[p]) byPlatform[p] = { spend: 0, views: 0, count: 0 };
+      byPlatform[p].spend += b.totalSpent || 0;
+      byPlatform[p].views += b.deliveredViews || 0;
+      byPlatform[p].count += 1;
+      totalSpend += b.totalSpent || 0;
+      totalViews += b.deliveredViews || 0;
+    });
+
+    const cards = PLATFORM_ORDER.map((p) => ({
+      label: p,
+      spend: byPlatform[p].spend,
+      views: byPlatform[p].views,
+      count: byPlatform[p].count,
+      color: `var(--${p.toLowerCase()})`,
+    }));
+    cards.push({ label: "ALL", spend: totalSpend, views: totalViews, count: boosts.length, color: "var(--accent)" });
+
+    cards.forEach((c) => {
+      const cpm = cpmOf(c.spend, c.views);
+      const card = document.createElement("div");
+      card.className = "kpi-card";
+      card.style.setProperty("--platform-color", c.color);
+      card.innerHTML = `
+        <div class="kpi-plat"><span>${c.label}</span><span class="count">${c.count} boost${c.count === 1 ? "" : "s"}</span></div>
+        <div class="kpi-row"><span>Spent</span><strong>${fmtMoney(c.spend)}</strong></div>
+        <div class="kpi-row"><span>Views</span><strong>${fmtInt(c.views)}</strong></div>
+        <div class="kpi-row"><span>Blended CPM</span><strong>${cpm !== null ? fmtMoney(cpm) : "—"}</strong></div>
+      `;
+      strip.appendChild(card);
+    });
+  }
+
+  function platformSubRows(platforms, groupKey, groupIdx, extraBlankCols) {
+    const blanks = extraBlankCols ? `<td class="num-col"></td>`.repeat(extraBlankCols) : "";
+    return platforms
+      .map(
+        (p) => `
+        <tr class="sub-row" data-parent="${groupKey}-${groupIdx}">
+          <td>${p.platform}</td>
+          <td class="num-col">${fmtInt(p.totalBoosts)}</td>
+          <td class="num-col">${fmtMoney(p.totalSpend)}</td>
+          <td class="num-col">${fmtInt(p.impressions)}</td>
+          <td class="num-col">${p.cpm !== null ? fmtMoney(p.cpm) : "—"}</td>
+          ${blanks}
+        </tr>`
+      )
+      .join("");
+  }
+
+  function renderBrandTable(brands) {
+    const tbody = $("#brandBody");
+    const admin = window.BoostingTrackerAdmin ? window.BoostingTrackerAdmin.getBrandAdmin() : {};
+    tbody.innerHTML = brands
+      .map((b, i) => {
+        const entry = admin[b.name] || {};
+        const hasBudget = entry.budget !== undefined && entry.budget !== null && entry.budget > 0;
+        const budgetCell = hasBudget ? fmtMoney(entry.budget) : "—";
+        // Margin = 1 − (spend ÷ budget): how much of the budget is left, not a profit margin.
+        const marginPct = hasBudget ? (1 - b.totalSpend / entry.budget) * 100 : null;
+        const marginCell = marginPct !== null ? `<span class="margin-pill">${marginPct.toFixed(0)}%</span>` : "—";
+        return `
+        <tr class="parent-row" data-idx="brand-${i}">
+          <td><span class="chevron">▶</span>${b.name}</td>
+          <td class="num-col">${fmtInt(b.totalBoosts)}</td>
+          <td class="num-col">${fmtMoney(b.totalSpend)}</td>
+          <td class="num-col">${fmtInt(b.impressions)}</td>
+          <td class="num-col">${b.cpm !== null ? fmtMoney(b.cpm) : "—"}</td>
+          <td class="num-col">${budgetCell}</td>
+          <td class="num-col">${marginCell}</td>
+        </tr>
+        ${platformSubRows(b.platforms, "brand", i, 2)}`;
+      })
+      .join("");
+  }
+
+  function renderMonthTable(months) {
+    const tbody = $("#monthBody");
+    tbody.innerHTML = months
+      .map(
+        (m, i) => `
+        <tr class="parent-row" data-idx="month-${i}">
+          <td><span class="chevron">▶</span>${m.name}</td>
+          <td class="num-col">${fmtInt(m.totalBoosts)}</td>
+          <td class="num-col">${fmtMoney(m.totalSpend)}</td>
+          <td class="num-col">${fmtInt(m.impressions)}</td>
+          <td class="num-col">${m.cpm !== null ? fmtMoney(m.cpm) : "—"}</td>
+        </tr>
+        ${platformSubRows(m.platforms, "month", i)}`
+      )
+      .join("");
+  }
+
+  function wireExpansion() {
+    $$("#view-brand tr.parent-row").forEach((row) => {
+      row.addEventListener("click", () => {
+        const idx = row.dataset.idx;
+        const expanded = row.classList.toggle("expanded");
+        $$(`#view-brand tr.sub-row[data-parent="${idx}"]`).forEach((sub) => {
+          sub.classList.toggle("show", expanded);
+        });
+      });
+    });
+  }
+
+  function renderAll(boosts) {
+    renderKPIs(boosts);
+    renderBrandTable(computeBrandView(boosts));
+    renderMonthTable(computeMonthView(boosts));
+    wireExpansion();
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    renderAll(window.BoostingTrackerData.getBoosts());
+  });
+  document.addEventListener("boosting-tracker:data-changed", () => {
+    renderAll(window.BoostingTrackerData.getBoosts());
+  });
+  document.addEventListener("boosting-tracker:admin-data-changed", () => {
+    renderAll(window.BoostingTrackerData.getBoosts());
+  });
+})();
+
+</script>
+<script>
+(function () {
+  const PLATFORM_ORDER = ["FB", "IG", "TW", "TT"];
+  const MONTH_NAMES = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+  const $ = (sel, ctx) => (ctx || document).querySelector(sel);
+  const $$ = (sel, ctx) => Array.from((ctx || document).querySelectorAll(sel));
+
+  const reportState = { sortKey: "start", sortDir: "asc", start: null, end: null, userAdjusted: false };
+
+  function fmtMoney(n) {
+    if (n === null || n === undefined || isNaN(n)) return "—";
+    return "$" + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  function fmtInt(n) {
+    if (n === null || n === undefined || isNaN(n)) return "—";
+    return n.toLocaleString("en-US");
+  }
+  function fmtDate(iso) {
+    if (!iso) return "—";
+    const [y, m, d] = iso.split("-").map(Number);
+    return `${MONTH_NAMES[m]} ${d}`;
+  }
+  function cpmOf(spend, views) {
+    return views ? (spend / views) * 1000 : null;
+  }
+
+  /* ---------------- date helpers ---------------- */
+
+  function isoAddDays(iso, days) {
+    const [y, m, d] = iso.split("-").map(Number);
+    const dt = new Date(Date.UTC(y, m - 1, d));
+    dt.setUTCDate(dt.getUTCDate() + days);
+    return dt.toISOString().slice(0, 10);
+  }
+
+  function defaultWindow(boosts) {
+    const ends = boosts.map((b) => b.end).filter(Boolean).sort();
+    if (!ends.length) return { start: null, end: null };
+    const maxEnd = ends[ends.length - 1];
+    return { start: isoAddDays(maxEnd, -6), end: maxEnd };
+  }
+
+  /* ---------------- live aggregation ---------------- */
+
+  function computeReportView(boosts, start, end) {
+    // A boost with no end date (bad/incomplete data) shouldn't vanish from
+    // every report window — treat it as a single-day event on its start date
+    // rather than excluding it outright.
+    const active = boosts.filter((b) => {
+      if (!b.start) return false;
+      const effectiveEnd = b.end || b.start;
+      return b.start <= end && effectiveEnd >= start;
+    });
+
+    const platformMap = {};
+    active.forEach((b) => {
+      const p = b.platform || "—";
+      if (!platformMap[p]) platformMap[p] = { spend: 0, views: 0 };
+      platformMap[p].spend += b.totalSpent || 0;
+      platformMap[p].views += b.deliveredViews || 0;
+    });
+    const platformSpend = PLATFORM_ORDER.filter((p) => platformMap[p]).map((p) => ({
+      platform: p,
+      spend: platformMap[p].spend,
+      views: platformMap[p].views,
+      cpm: cpmOf(platformMap[p].spend, platformMap[p].views),
+    }));
+    const totalSpend = active.reduce((s, b) => s + (b.totalSpent || 0), 0);
+    const totalViews = active.reduce((s, b) => s + (b.deliveredViews || 0), 0);
+    platformSpend.push({ platform: "TOTAL", spend: totalSpend, views: totalViews, cpm: cpmOf(totalSpend, totalViews) });
+
+    const activeSpendByBrand = {};
+    active.forEach((b) => {
+      const key = b.brand || "Unknown";
+      if (!activeSpendByBrand[key]) activeSpendByBrand[key] = { brand: key, activeBoosts: 0, activeSpend: 0 };
+      activeSpendByBrand[key].activeBoosts += 1;
+      activeSpendByBrand[key].activeSpend += b.totalSpent || 0;
+    });
+    const ytdSpendByBrand = {};
+    boosts.forEach((b) => {
+      const key = b.brand || "Unknown";
+      ytdSpendByBrand[key] = (ytdSpendByBrand[key] || 0) + (b.totalSpent || 0);
+    });
+    const brandsActive = Object.values(activeSpendByBrand)
+      .map((b) => ({ ...b, ytdSpend: ytdSpendByBrand[b.brand] || 0 }))
+      .sort((a, b) => b.activeSpend - a.activeSpend);
+
+    const whgCount = active.filter((b) => b.whg).length;
+    const distinctBrands = new Set(active.map((b) => b.brand)).size;
+
+    return {
+      active,
+      platformSpend,
+      brandsActive,
+      meta: { activeBoosts: active.length, brands: distinctBrands, whg: whgCount },
+    };
+  }
+
+  /* ---------------- rendering ---------------- */
+
+  function renderMetaStrip(meta, start, end) {
+    const strip = $("#reportMetaStrip");
+    const cards = [
+      { label: "Report Window", value: start && end ? `${fmtDate(start)} – ${fmtDate(end)}` : "—" },
+      { label: "Active Boosts", value: meta.activeBoosts },
+      { label: "Brands", value: meta.brands },
+      { label: "WHG", value: meta.whg },
+    ];
+    strip.innerHTML = cards
+      .map((c) => `<div class="stat-card"><div class="stat-value">${c.value}</div><div class="stat-label">${c.label}</div></div>`)
+      .join("");
+  }
+
+  function renderPlatformKPIs(platformSpend) {
+    const strip = $("#kpiStripReport");
+    strip.innerHTML = "";
+    platformSpend.forEach((p) => {
+      const isTotal = p.platform === "TOTAL";
+      const card = document.createElement("div");
+      card.className = "kpi-card";
+      card.style.setProperty("--platform-color", isTotal ? "var(--accent)" : `var(--${p.platform.toLowerCase()})`);
+      card.innerHTML = `
+        <div class="kpi-plat"><span>${p.platform}</span></div>
+        <div class="kpi-row"><span>Spent</span><strong>${fmtMoney(p.spend)}</strong></div>
+        <div class="kpi-row"><span>Views</span><strong>${fmtInt(p.views)}</strong></div>
+        <div class="kpi-row"><span>CPM</span><strong>${p.cpm !== null ? fmtMoney(p.cpm) : "—"}</strong></div>
+      `;
+      strip.appendChild(card);
+    });
+  }
+
+  function renderActiveBrandsTable(brandsActive) {
+    const tbody = $("#activeBrandsBody");
+    if (!brandsActive.length) {
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--muted); padding:20px;">No active brands in this window</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = brandsActive
+      .map(
+        (b) => `
+      <tr>
+        <td><strong>${b.brand}</strong></td>
+        <td class="num-col">${fmtInt(b.activeBoosts)}</td>
+        <td class="num-col">${fmtMoney(b.activeSpend)}</td>
+        <td class="num-col">${fmtMoney(b.ytdSpend)}</td>
+      </tr>`
+      )
+      .join("");
+  }
+
+  function cpmBadge(r) {
+    if (r.cpm === null || r.cpm === undefined) return `<span class="cpm-neutral">—</span>`;
+    return `<span class="cpm-flag cpm-neutral">${fmtMoney(r.cpm)}</span>`;
+  }
+
+  function sortRows(rows) {
+    const { sortKey, sortDir } = reportState;
+    const dir = sortDir === "asc" ? 1 : -1;
+    return rows.slice().sort((a, b) => {
+      let av = a[sortKey];
+      let bv = b[sortKey];
+      if (av === null || av === undefined) av = sortDir === "asc" ? Infinity : -Infinity;
+      if (bv === null || bv === undefined) bv = sortDir === "asc" ? Infinity : -Infinity;
+      if (typeof av === "string" && typeof bv === "string") return av.localeCompare(bv) * dir;
+      return (av - bv) * dir;
+    });
+  }
+
+  function renderBoostsTable(active) {
+    const tbody = $("#reportBoostsBody");
+    const emptyState = $("#reportEmptyState");
+    const rows = sortRows(active);
+
+    if (!rows.length) {
+      tbody.innerHTML = "";
+      emptyState.style.display = "block";
+      return;
+    }
+    emptyState.style.display = "none";
+
+    tbody.innerHTML = rows
+      .map(
+        (r) => `
+      <tr>
+        <td class="id-col">#${r.id}</td>
+        <td><span class="platform-pill ${r.platform}">${r.platform}</span></td>
+        <td class="brand-cell">
+          <strong>${r.brand}</strong>
+          <span class="content-line">${[r.content, r.episode].filter(Boolean).join(" · ")}</span>
+        </td>
+        <td class="date-range">${fmtDate(r.start)} – ${fmtDate(r.end)}</td>
+        <td class="num-col">${fmtMoney(r.totalSpent)}</td>
+        <td class="num-col">${fmtInt(r.deliveredViews)}</td>
+        <td class="num-col">${cpmBadge(r)}</td>
+      </tr>`
+      )
+      .join("");
+  }
+
+  function renderSortArrows() {
+    $$("#view-report th[data-key]").forEach((th) => {
+      const arrow = th.querySelector(".arrow");
+      if (arrow) arrow.remove();
+      if (th.dataset.key === reportState.sortKey) {
+        const span = document.createElement("span");
+        span.className = "arrow";
+        span.textContent = reportState.sortDir === "asc" ? "▲" : "▼";
+        th.appendChild(span);
+      }
+    });
+  }
+
+  function renderAll(boosts) {
+    if (!reportState.userAdjusted || reportState.start === null) {
+      const win = defaultWindow(boosts);
+      reportState.start = win.start;
+      reportState.end = win.end;
+      $("#reportStart").value = win.start || "";
+      $("#reportEnd").value = win.end || "";
+    }
+
+    const view = computeReportView(boosts, reportState.start, reportState.end);
+    renderMetaStrip(view.meta, reportState.start, reportState.end);
+    renderPlatformKPIs(view.platformSpend);
+    renderActiveBrandsTable(view.brandsActive);
+    renderBoostsTable(view.active);
+    renderSortArrows();
+  }
+
+  function wireControls() {
+    $("#reportStart").addEventListener("change", (e) => {
+      reportState.start = e.target.value || null;
+      reportState.userAdjusted = true;
+      renderAll(window.BoostingTrackerData.getBoosts());
+    });
+    $("#reportEnd").addEventListener("change", (e) => {
+      reportState.end = e.target.value || null;
+      reportState.userAdjusted = true;
+      renderAll(window.BoostingTrackerData.getBoosts());
+    });
+    $$("#view-report th[data-key]").forEach((th) => {
+      th.addEventListener("click", () => {
+        const key = th.dataset.key;
+        if (reportState.sortKey === key) {
+          reportState.sortDir = reportState.sortDir === "asc" ? "desc" : "asc";
+        } else {
+          reportState.sortKey = key;
+          reportState.sortDir = key === "start" ? "asc" : "desc";
+        }
+        renderAll(window.BoostingTrackerData.getBoosts());
+      });
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    wireControls();
+    renderAll(window.BoostingTrackerData.getBoosts());
+  });
+  document.addEventListener("boosting-tracker:data-changed", () => {
+    renderAll(window.BoostingTrackerData.getBoosts());
+  });
+})();
+
+</script>
+<script>
+(function () {
+  const STORAGE_KEY = "jomboy-boosting-tracker:brand-admin";
+
+  const $ = (sel, ctx) => (ctx || document).querySelector(sel);
+  const $$ = (sel, ctx) => Array.from((ctx || document).querySelectorAll(sel));
+
+  let adminData = {}; // { brandName: { budget: number|null } }
+
+  function loadAdminData() {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      adminData = saved ? JSON.parse(saved) : {};
+    } catch (e) {
+      adminData = {};
+    }
+  }
+
+  function saveAdminData() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(adminData));
+    document.dispatchEvent(new CustomEvent("boosting-tracker:admin-data-changed"));
+  }
+
+  // Other tabs (By Brand) read the saved budget through this; margin is
+  // computed from budget + actual spend, not stored here.
+  window.BoostingTrackerAdmin = {
+    getBrandAdmin: () => adminData,
+  };
+
+  function currentBrandList() {
+    const fromData = (window.BoostingTrackerData ? window.BoostingTrackerData.getBoosts() : []).map((b) => b.brand);
+    const fromAdmin = Object.keys(adminData);
+    return Array.from(new Set([...fromData, ...fromAdmin])).sort();
+  }
+
+  function renderTable() {
+    const tbody = $("#adminBrandBody");
+    const brands = currentBrandList();
+
+    if (!brands.length) {
+      tbody.innerHTML = `<tr><td colspan="2" style="text-align:center; color:var(--muted); padding:20px;">No brands yet — upload data on the 2026 Boosts tab first, or add one below.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = brands
+      .map((brand) => {
+        const entry = adminData[brand] || {};
+        const budget = entry.budget !== undefined && entry.budget !== null ? entry.budget : "";
+        const safeId = brand.replace(/[^a-zA-Z0-9]/g, "_");
+        return `
+        <tr>
+          <td><strong>${brand}</strong></td>
+          <td class="num-col">
+            <input type="number" class="admin-budget-input" data-brand="${brand}" id="budget_${safeId}"
+                   value="${budget}" placeholder="—" min="0" step="1"
+                   style="width:140px; text-align:right; background:var(--panel2); border:1px solid var(--border); color:var(--text); border-radius:8px; padding:6px 8px; font-family:inherit;" />
+          </td>
+        </tr>`;
+      })
+      .join("");
+
+    wireRowInputs();
+  }
+
+  function wireRowInputs() {
+    $$(".admin-budget-input").forEach((input) => {
+      input.addEventListener("change", (e) => {
+        const brand = e.target.dataset.brand;
+        const val = e.target.value === "" ? null : parseFloat(e.target.value);
+        adminData[brand] = adminData[brand] || {};
+        adminData[brand].budget = isNaN(val) ? null : val;
+        saveAdminData();
+      });
+    });
+  }
+
+  function wireAddBrandForm() {
+    $("#adminAddBrandBtn").addEventListener("click", () => {
+      const nameInput = $("#adminNewBrand");
+      const budgetInput = $("#adminNewBudget");
+      const name = nameInput.value.trim();
+      if (!name) {
+        nameInput.focus();
+        return;
+      }
+      const budget = budgetInput.value === "" ? null : parseFloat(budgetInput.value);
+      adminData[name] = { budget: isNaN(budget) ? null : budget };
+      saveAdminData();
+      nameInput.value = "";
+      budgetInput.value = "";
+      renderTable();
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    loadAdminData();
+    renderTable();
+    wireAddBrandForm();
+  });
+
+  // Keep the brand list current if the underlying CSV data changes.
+  document.addEventListener("boosting-tracker:data-changed", () => {
+    renderTable();
+  });
+})();
+
+</script>
+<script>
+
+(function () {
+  var buttons = document.querySelectorAll('.view-nav button[data-view]');
+  var panels = document.querySelectorAll('.view-panel');
+  buttons.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var target = btn.dataset.view;
+      buttons.forEach(function (b) { b.classList.toggle('active', b === btn); });
+      panels.forEach(function (p) { p.classList.toggle('active', p.id === 'view-' + target); });
+    });
+  });
+})();
+
+</script>
+</body>
+</html>
